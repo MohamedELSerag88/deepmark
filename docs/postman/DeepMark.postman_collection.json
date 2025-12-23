@@ -1,0 +1,672 @@
+{
+	"info": {
+		"name": "DeepMark Mobile API",
+		"_postman_id": "3d7c2d3b-9fd0-48c4-9a3b-5e7c0d7c0d3a",
+		"description": "Postman collection for DeepMark Mobile API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Send OTP (email)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/mobile/v1/send-otp",
+							"host": ["{{base_url}}"],
+							"path": ["mobile","v1","send-otp"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@example.com\"\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": { "method": "POST" },
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"body": "{\n  \"status\": \"OK\",\n  \"message\": \"SMS Sent with otp\"\n}"
+						},
+						{
+							"name": "Error",
+							"originalRequest": { "method": "POST" },
+							"status": "FAILED",
+							"code": 200,
+							"body": "{\n  \"status\": \"FAILED\",\n  \"message\": \"Validation error\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Check OTP (login)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/mobile/v1/check-otp",
+							"host": ["{{base_url}}"],
+							"path": ["mobile","v1","check-otp"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@example.com\",\n  \"otp_code\": \"123456\"\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"fname\": \"John\",\n    \"lname\": \"Doe\",\n    \"email\": \"user@example.com\",\n    \"phone\": \"201001234567\",\n    \"token\": \"<jwt>\"\n  },\n  \"message\": \"logged in successfully.\"\n}"
+						},
+						{
+							"name": "Wrong OTP",
+							"status": "FAILED",
+							"code": 200,
+							"body": "{\n  \"status\": \"FAILED\",\n  \"message\": \"Wrong Otp token!\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/mobile/v1/register",
+							"host": ["{{base_url}}"],
+							"path": ["mobile","v1","register"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"phone\": \"201001234567\",\n  \"password\": \"StrongPass123\"\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"fname\": \"John\",\n    \"lname\": \"Doe\",\n    \"email\": \"john@example.com\",\n    \"phone\": \"201001234567\",\n    \"token\": \"<jwt>\"\n  },\n  \"message\": \"user created successfully\"\n}"
+						},
+						{
+							"name": "Validation error",
+							"status": "FAILED",
+							"code": 422,
+							"body": "{\n  \"status\": \"FAILED\",\n  \"message\": \"The email has already been taken.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Social Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/mobile/v1/social-login",
+							"host": ["{{base_url}}"],
+							"path": ["mobile","v1","social-login"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"provider\": \"google\",\n  \"token\": \"<id_token>\",\n  \"fname\": \"Olivia\",\n  \"lname\": \"Ham\"\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\"fname\": \"Olivia\", \"lname\": \"Ham\", \"email\": \"olivia@example.com\", \"phone\": null, \"token\": \"<jwt>\"},\n  \"message\": \"logged in successfully.\"\n}"
+						},
+						{
+							"name": "Invalid token",
+							"status": "FAILED",
+							"code": 401,
+							"body": "{ \"status\": \"FAILED\", \"message\": \"Invalid social token\" }"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Questions",
+			"item": [
+				{
+					"name": "List Questions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/mobile/v1/questions",
+							"host": ["{{base_url}}"],
+							"path": ["mobile","v1","questions"]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": [\n    {\n      \"id\": 1,\n      \"question_en\": \"What’s your brand’s main point‑of‑view or core belief?\",\n      \"question_ar\": \"ما هو الموقف أو الاعتقاد الأساسي لعلامتك؟\",\n      \"question_type\": \"text\",\n      \"answers\": null,\n      \"description_en\": \"Strong brands stand for something – what’s your big \\\"why\\\"?\",\n      \"description_ar\": \"العلامات القوية تؤمن بشيء ما – ما هو سبب وجودك؟\",\n      \"video_url\": null,\n      \"video_path\": null,\n      \"image_url\": null,\n      \"example_answer\": \"We believe great design should be accessible, human, and useful.\",\n      \"resources\": [\n        { \"title\": \"Why it matters\", \"text\": \"Customers connect with personalities, not services.\" },\n        { \"title\": \"Elements of a brand personality\", \"text\": \"Sincerity, Excitement, Competence, Sophistication, Ruggedness\" }\n      ]\n    }\n  ]\n}"
+						},
+						{
+							"name": "Unauthorized",
+							"status": "FAILED",
+							"code": 401,
+							"body": "{\n  \"status\": \"FAILED\",\n  \"message\": \"Unauthenticated.\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Brand",
+			"item": [
+				{
+					"name": "Generate Brand Names",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/mobile/v1/brand-names",
+							"host": ["{{base_url}}"],
+							"path": ["mobile","v1","brand-names"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"language\": \"en\",\n  \"count\": 12,\n  \"tlds\": [\"com\",\"io\",\"ai\"],\n  \"answers\": [\n    { \"question_id\": 1, \"value\": \"We believe great design should be accessible\" },\n    { \"question_id\": 2, \"value\": \"Ambitious founders\" }\n  ]\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"items\": [\n      {\n        \"id\": 1,\n        \"name\": \"Zephyra\",\n        \"archetype\": \"The Hero\",\n        \"domains\": {\n          \"primary\": { \"tld\": \".com\", \"available\": true, \"domain\": \"zephyra.com\" },\n          \"list\": [\n            { \"domain\": \"zephyra.com\", \"available\": true },\n            { \"domain\": \"zephyra.io\", \"available\": false },\n            { \"domain\": \"zephyra.ai\", \"available\": true }\n          ],\n          \"more_count\": 2\n        },\n        \"liked\": false\n      }\n    ]\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Edit Brand Names (Chat)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/mobile/v1/brand-names/edit",
+							"host": ["{{base_url}}"],
+							"path": ["mobile","v1","brand-names","edit"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"chat_id\": 1,\n  \"comment\": \"Make names shorter, more energetic, avoid hard consonants\",\n  \"tlds\": [\"com\",\"io\",\"ai\"]\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"items\": [\n      { \"id\": 1, \"name\": \"Vanguard\", \"archetype\": \"The Hero\", \"domains\": { \"primary\": { \"tld\": \".com\", \"available\": false, \"domain\": \"vanguard.com\" }, \"list\": [], \"more_count\": 0 }, \"liked\": false }\n    ]\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "List Favorite Names",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/mobile/v1/brand-names/favorites",
+							"host": ["{{base_url}}"],
+							"path": ["mobile","v1","brand-names","favorites"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Save Favorite Name",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/mobile/v1/brand-names/favorites",
+							"host": ["{{base_url}}"],
+							"path": ["mobile","v1","brand-names","favorites"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Zephyra\",\n  \"archetype\": \"The Hero\",\n  \"domains\": {\n    \"primary\": { \"tld\": \".com\", \"available\": true, \"domain\": \"zephyra.com\" },\n    \"list\": [\n      { \"domain\": \"zephyra.com\", \"available\": true },\n      { \"domain\": \"zephyra.io\", \"available\": false },\n      { \"domain\": \"zephyra.ai\", \"available\": true }\n    ],\n    \"more_count\": 2\n  },\n  \"brand_chat_id\": 1\n}"
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Favorite Name",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/mobile/v1/brand-names/favorites/1",
+							"host": ["{{base_url}}"],
+							"path": ["mobile","v1","brand-names","favorites","1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Share Brand Names",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/mobile/v1/brand-names/share",
+							"host": ["{{base_url}}"],
+							"path": ["mobile","v1","brand-names","share"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"emails\": [\"friend@example.com\"],\n  \"subject\": \"Check these name ideas\",\n  \"message\": \"What do you think?\",\n  \"brand_chat_id\": 1\n}"
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invite Friends",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/mobile/v1/invites",
+							"host": ["{{base_url}}"],
+							"path": ["mobile","v1","invites"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"emails\": [\"friend1@example.com\",\"friend2@example.com\"],\n  \"message\": \"Join me on Deepmarks\"\n}"
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Invitations",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/mobile/v1/invites",
+							"host": ["{{base_url}}"],
+							"path": ["mobile","v1","invites"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Generate Brand Text",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/mobile/v1/brand-text",
+							"host": ["{{base_url}}"],
+							"path": ["mobile","v1","brand-text"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"language\": \"both\",\n  \"answers\": [\n    { \"question_id\": 1, \"value\": \"Apartment\" },\n    { \"question_id\": 2, \"value\": [\"Pool\",\"Gym\"] }\n  ]\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Success (JSON structured)",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"brand_text\": {\n      \"en\": { \"taglines\": [\"Live smart\"], \"mission\": \"...\", \"description\": \"...\" },\n      \"ar\": { \"taglines\": [\"...\"], \"mission\": \"...\", \"description\": \"...\" }\n    },\n    \"colors\": [ { \"name\": {\"en\": \"Primary\", \"ar\": \"الأساسي\"}, \"hex\": \"#112233\", \"usage\": {\"en\": \"Buttons\", \"ar\": \"الأزرار\"} } ],\n    \"design_details\": { \"en\": { \"typography\": [ {\"family\": \"Inter\", \"weights\": [\"400\",\"700\"], \"usage\": \"Headings\" } ], \"imagery\": \"...\", \"layout\": \"...\" }, \"ar\": { \"typography\": [ {\"family\": \"Cairo\", \"weights\": [\"400\",\"700\"], \"usage\": \"العناوين\" } ], \"imagery\": \"...\", \"layout\": \"...\" } }\n  }\n}"
+						},
+						{
+							"name": "Fallback (raw)",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"brand_text\": null,\n    \"colors\": [],\n    \"design_details\": [],\n    \"raw\": \"Unstructured response...\"\n  }\n}"
+						},
+						{
+							"name": "Unauthorized",
+							"status": "FAILED",
+							"code": 401,
+							"body": "{ \"status\": \"FAILED\", \"message\": \"Unauthenticated.\" }"
+						}
+					]
+				},
+				{
+					"name": "Brand History",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/mobile/v1/brand-text/history",
+							"host": ["{{base_url}}"],
+							"path": ["mobile","v1","brand-text","history"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Brand Text",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/mobile/v1/brand-text/edit",
+							"host": ["{{base_url}}"],
+							"path": ["mobile","v1","brand-text","edit"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"chat_id\": 1,\n  \"comment\": \"Make taglines shorter and more premium\",\n  \"language\": \"en\"\n}"
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check Domains",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/mobile/v1/brand-text/domains",
+							"host": ["{{base_url}}"],
+							"path": ["mobile","v1","brand-text","domains"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"DeepMark\",\n  \"tlds\": [\"com\",\"io\",\"ai\"]\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"results\": [\n      { \"domain\": \"deepmark.com\", \"available\": true },\n      { \"domain\": \"deepmark.io\", \"available\": false }\n    ]\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Reserve Domain (Namecheap)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/mobile/v1/brand-text/reserve-domain",
+							"host": ["{{base_url}}"],
+							"path": ["mobile","v1","brand-text","reserve-domain"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"domain\": \"deepmark.io\",\n  \"years\": 1,\n  \"whois_guard\": false,\n  \"registrant\": {\n    \"first_name\": \"John\",\n    \"last_name\": \"Doe\",\n    \"address1\": \"123 Main St\",\n    \"city\": \"Cairo\",\n    \"state_province\": \"Cairo\",\n    \"postal_code\": \"12345\",\n    \"country\": \"EG\",\n    \"phone\": \"+20.1000000000\",\n    \"email\": \"john@example.com\"\n  }\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"reservation_id\": 10,\n    \"status\": \"success\",\n    \"provider_order_id\": \"1234567\"\n  },\n  \"message\": \"Domain reserved successfully\"\n}"
+						},
+						{
+							"name": "Failed",
+							"status": "FAILED",
+							"code": 400,
+							"body": "{\n  \"status\": \"FAILED\",\n  \"reservation_id\": 11,\n  \"status\": \"failed\",\n  \"error\": \"Order validation failed\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Meetings",
+			"item": [
+				{
+					"name": "List My Meetings",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/mobile/v1/meetings",
+							"host": ["{{base_url}}"],
+							"path": ["mobile","v1","meetings"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Request Meeting",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/mobile/v1/meetings",
+							"host": ["{{base_url}}"],
+							"path": ["mobile","v1","meetings"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"brand_id\": 1,\n  \"date\": \"2025-12-05\",\n  \"time\": \"14:30\",\n  \"notes\": \"Discuss visual identity\"\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"id\": 22,\n    \"brand_chat_id\": 1,\n    \"meeting_at\": \"2025-12-05T14:30:00Z\",\n    \"status\": \"pending\"\n  },\n  \"message\": \"Meeting request created\"\n}"
+						},
+						{
+							"name": "Validation error (past time)",
+							"status": "FAILED",
+							"code": 422,
+							"body": "{\n  \"status\": \"FAILED\",\n  \"message\": \"Meeting time must be in the future\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Profile",
+			"item": [
+				{
+					"name": "Get Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/mobile/v1/profile",
+							"host": ["{{base_url}}"],
+							"path": ["mobile","v1","profile"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/mobile/v1/profile",
+							"host": ["{{base_url}}"],
+							"path": ["mobile","v1","profile"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fname\": \"John\",\n  \"lname\": \"Doe\"\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"id\": 1,\n    \"fname\": \"John\",\n    \"lname\": \"Doe\",\n    \"email\": \"john@example.com\",\n    \"phone\": \"201001234567\"\n  },\n  \"message\": \"Profile updated successfully\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Subscriptions",
+			"item": [
+				{
+					"name": "List Plans",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/mobile/v1/plans",
+							"host": ["{{base_url}}"],
+							"path": ["mobile","v1","plans"]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": [\n    {\n      \"id\": 1,\n      \"name\": \"Basic\",\n      \"description\": \"Starter plan for individuals\",\n      \"price_cents\": 0,\n      \"currency\": \"usd\",\n      \"interval\": \"month\",\n      \"features\": [\n        {\"key\":\"brand_generations\",\"label\":\"Brand generations / month\",\"value\":\"3\"},\n        {\"key\":\"domain_checks\",\"label\":\"Domain checks / month\",\"value\":\"10\"}\n      ]\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Get My Subscription",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/mobile/v1/subscription",
+							"host": ["{{base_url}}"],
+							"path": ["mobile","v1","subscription"]
+						}
+					},
+					"response": [
+						{
+							"name": "Active",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"status\": \"active\",\n    \"plan\": {\"id\": 2, \"name\": \"Pro\", \"price_cents\": 1999, \"currency\": \"usd\", \"interval\": \"month\"},\n    \"started_at\": \"2025-11-30T10:00:00Z\",\n    \"ends_at\": null\n  }\n}"
+						},
+						{
+							"name": "No subscription",
+							"status": "OK",
+							"code": 200,
+							"body": "{ \"status\": \"OK\", \"data\": null }"
+						}
+					]
+				},
+				{
+					"name": "Subscribe",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": {
+							"raw": "{{base_url}}/mobile/v1/subscribe",
+							"host": ["{{base_url}}"],
+							"path": ["mobile","v1","subscribe"]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"plan_id\": 2\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Free plan (instant)",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\"subscription_id\": 12, \"status\": \"active\"},\n  \"message\": \"Subscribed to free plan\"\n}"
+						},
+						{
+							"name": "Paid plan (Stripe Checkout)",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"checkout_url\": \"https://checkout.stripe.com/c/session_abc\",\n    \"session_id\": \"cs_test_123\"\n  }\n}"
+						}
+					]
+				}
+			]
+		}
+	],
+	"variable": [
+		{ "key": "base_url", "value": "http://localhost" },
+		{ "key": "token", "value": "" }
+	]
+}
+
+
