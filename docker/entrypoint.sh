@@ -14,7 +14,7 @@ else
 fi
 
 if grep -q '^DB_DATABASE=' .env; then
-	sed -i 's|^DB_DATABASE=.*|DB_DATABASE=/var/www/html/database/database.sqlite|'
+	sed -i 's|^DB_DATABASE=.*|DB_DATABASE=/var/www/html/database/database.sqlite|' .env
 else
 	echo 'DB_DATABASE=/var/www/html/database/database.sqlite' >> .env
 fi

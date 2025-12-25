@@ -1,7 +1,7 @@
 # Multi-stage build: PHP-FPM app image and Nginx image
 
-# Stage 1: install Composer dependencies
-FROM composer:2 AS vendor
+# Stage 1: install Composer dependencies (pin to PHP 8.4 to satisfy lock)
+FROM composer:2-php8.4 AS vendor
 WORKDIR /app
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --prefer-dist --no-progress --no-interaction --no-scripts
