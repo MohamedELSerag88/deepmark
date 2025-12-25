@@ -1,8 +1,16 @@
 # Multi-stage build: PHP-FPM app image and Nginx image
 
-# Stage 1: install Composer dependencies (pin to PHP 8.4 to satisfy lock)
-FROM composer:2-php8.4 AS vendor
+# Stage 1: install Composer dependencies (use PHP 8.4 CLI to satisfy lock)
+FROM php:8.4-cli-bookworm AS vendor
 WORKDIR /app
+RUN set -eux; \
+	apt-get update; \
+	apt-get install -y --no-install-recommends git unzip ca-certificates libzip-dev libicu-dev; \
+	docker-php-ext-install -j"$(nproc)" intl zip; \
+	rm -rf /var/lib/apt/lists/*; \
+	curl -fsSL https://getcomposer.org/installer -o composer-setup.php; \
+	php composer-setup.php --install-dir=/usr/local/bin --filename=composer; \
+	rm -f composer-setup.php
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --prefer-dist --no-progress --no-interaction --no-scripts
 
