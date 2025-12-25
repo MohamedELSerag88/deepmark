@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: .
+      target: app
+    image: deepmark-php:latest
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+    volumes:
+      - storage:/var/www/html/storage
+      - database:/var/www/html/database
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      target: nginx
+    image: deepmark-nginx:latest
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+    volumes:
+      - storage:/var/www/html/storage:ro
+      - database:/var/www/html/database:ro
+    restart: unless-stopped
+
+volumes:
+  storage:
+  database:
+
+
