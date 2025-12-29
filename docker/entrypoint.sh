@@ -24,6 +24,11 @@ touch database/database.sqlite
 chown -R www-data:www-data storage bootstrap/cache database || true
 chmod -R ug+rwX storage bootstrap/cache database || true
 
+# Ensure Laravel cache directories exist
+mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views
+chown -R www-data:www-data storage/framework || true
+chmod -R ug+rwX storage/framework || true
+
 php artisan key:generate --force || true
 php artisan storage:link || true
 php artisan migrate --force || true
