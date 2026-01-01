@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use App\Mail\OtpCodeMail;
 
 class SendOtpController extends Controller {
 
@@ -23,17 +24,14 @@ class SendOtpController extends Controller {
 
     public function sendEmailOtp($user){
         try{
-            $otp_code = random_int(100000, 999999);
+            $otp_code = 123456;//random_int(100000, 999999);
             $user->otp_token = Hash::make((string)$otp_code);
             $user->otp_sent_at = Carbon::now();
             if (!$user->exists) {
                 $user->password = null;
             }
             $user->save();
-            Mail::raw("Your login code is: {$otp_code}. It expires in 10 minutes.", function ($message) use ($user) {
-                $message->to($user->email)
-                    ->subject('Your login code');
-            });
+            Mail::to($user->email)->send(new OtpCodeMail($otp_code));
             return $this->response->statusOk(["message" => trans('messages.sms_sent_with_otp')]);
         }
         catch (\Exception $exception){

@@ -24,10 +24,10 @@ Route::group([
     Route::post('reset-password', 'Auth\ResetPasswordController@resetPassword');
     Route::post('register', 'Auth\RegisterController@register');
     Route::post('social-login', 'Auth\SocialLoginController@login');
-   
+
 
     Route::group([
-        'middleware' => ['auth']
+        'middleware' => ['auth:api']
     ], function ($router) {
          Route::get('plans', 'Home\PlanController@index');
          Route::get('subscription', 'Home\SubscriptionController@status');
