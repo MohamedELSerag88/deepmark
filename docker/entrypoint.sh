@@ -20,10 +20,18 @@ chmod -R ug+rwX storage/framework || true
 php artisan key:generate --force || true
 php artisan storage:link || true
 php artisan migrate --force || true
-php artisan config:clear || true
-php artisan config:cache || true
-php artisan route:cache || true
-php artisan view:cache || true
+
+# Cache only in production; otherwise keep things clear for development
+if [ "${APP_ENV:-production}" = "production" ] || [ "${APP_DEBUG:-false}" = "false" ]; then
+	php artisan config:clear || true
+	php artisan config:cache || true
+	php artisan route:cache || true
+	php artisan view:cache || true
+else
+	php artisan config:clear || true
+	php artisan route:clear || true
+	php artisan view:clear || true
+fi
 
 exec "$@"
 

@@ -7,11 +7,10 @@ services:
     env_file:
       - .env
     environment:
-      APP_ENV: production
-      APP_DEBUG: "false"
+      APP_ENV: local
+      APP_DEBUG: "true"
     volumes:
-      - storage:/var/www/html/storage
-      - database:/var/www/html/database
+      - ./:/var/www/html
     restart: unless-stopped
 
   web:
@@ -24,12 +23,6 @@ services:
     ports:
       - "80:80"
     volumes:
-      - storage:/var/www/html/storage:ro
-      - database:/var/www/html/database:ro
+      - ./:/var/www/html:ro
     restart: unless-stopped
-
-volumes:
-  storage:
-  database:
-
 
