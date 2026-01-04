@@ -12,7 +12,7 @@ RUN set -eux; \
 	php composer-setup.php --install-dir=/usr/local/bin --filename=composer; \
 	rm -f composer-setup.php
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --prefer-dist --no-progress --no-interaction --no-scripts
+RUN composer install --prefer-dist --no-progress --no-interaction --no-scripts
 
 # Stage 2: PHP-FPM app
 FROM php:8.4-fpm-bookworm AS app

@@ -29,6 +29,7 @@ fi
 php artisan key:generate --force || true
 php artisan storage:link || true
 php artisan migrate --force || true
+php artisan package:discover --ansi || true
 
 # Cache only in production; otherwise keep things clear for development
 if [ "${APP_ENV:-production}" = "production" ] || [ "${APP_DEBUG:-false}" = "false" ]; then
