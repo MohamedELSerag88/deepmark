@@ -24,7 +24,7 @@ Route::group([
     Route::post('reset-password', 'Auth\ResetPasswordController@resetPassword');
     Route::post('register', 'Auth\RegisterController@register');
     Route::post('social-login', 'Auth\SocialLoginController@login');
-
+    Route::get('questions', 'Home\QuestionController@index');
 
     Route::group([
         'middleware' => ['auth:api']
@@ -32,7 +32,7 @@ Route::group([
          Route::get('plans', 'Home\PlanController@index');
          Route::get('subscription', 'Home\SubscriptionController@status');
          Route::post('subscribe', 'Home\SubscriptionController@subscribe');
-        Route::get('questions', 'Home\QuestionController@index');
+
         Route::post('brand-names', 'Home\BrandNameController@generate');
         Route::post('brand-names/edit', 'Home\BrandNameController@edit');
         Route::get('brand-names/favorites', 'Home\BrandNameFavoriteController@index');
