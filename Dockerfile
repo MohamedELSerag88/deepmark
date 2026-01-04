@@ -24,11 +24,11 @@ RUN set -eux; \
 		git unzip ca-certificates \
 		libzip-dev libicu-dev libonig-dev libxml2-dev \
 		libjpeg62-turbo-dev libpng-dev libfreetype6-dev \
-		sqlite3 libsqlite3-dev; \
+			sqlite3 libsqlite3-dev; \
 	rm -rf /var/lib/apt/lists/*; \
 	docker-php-ext-configure gd --with-freetype --with-jpeg; \
 	docker-php-ext-install -j"$(nproc)" \
-		bcmath exif gd intl mbstring pdo pdo_sqlite xml zip
+		bcmath exif gd intl mbstring pdo pdo_mysql pdo_sqlite xml zip
 
 # Copy application source
 COPY . /var/www/html

@@ -4,6 +4,8 @@ services:
       context: .
       target: app
     image: deepmark-php:latest
+    env_file:
+      - .env
     environment:
       APP_ENV: production
       APP_DEBUG: "false"
