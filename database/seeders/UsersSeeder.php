@@ -15,9 +15,10 @@ class UsersSeeder extends Seeder
      */
     public function run(): void
     {
-        Schema::disableForeignKeyConstraints();
-        DB::table('users')->truncate();
-        Schema::enableForeignKeyConstraints();
+        // Use DELETE instead of TRUNCATE to respect FK constraints and CASCADE rules
+        User::query()->delete();
+        // Reset auto-increment for MySQL
+        DB::statement('ALTER TABLE users AUTO_INCREMENT = 1');
         User::create([
             'fname'=>'Test',
             'lname'=>'User',
