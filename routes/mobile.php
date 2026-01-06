@@ -57,4 +57,24 @@ Route::group([
 
 });
 
+Route::group([
+    'prefix' => 'admin',
+    'namespace' => 'App\Http\Controllers\Admin'
+], function ($router) {
+    // auth
+    Route::post('user/login', 'AuthController@login');
+    Route::group(['middleware' => ['auth:admin']], function ($router) {
+        Route::get('user/profile', 'AuthController@profile');
+        // users
+        Route::get('users', 'UserController@index');
+        Route::get('users/export', 'UserController@export');
+        Route::get('users/{id}', 'UserController@show');
+        Route::put('users/{id}', 'UserController@update');
+        Route::delete('users/{id}', 'UserController@destroy');
+        Route::get('users/{id}/projects', 'UserController@projects');
+        // projects (brand)
+        Route::get('projects/{id}', 'ProjectController@show');
+    });
+});
+
 

@@ -40,6 +40,13 @@ class User extends Authenticatable implements JWTSubject
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = ['name'];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -60,5 +67,24 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+    /**
+     * Accessor to build a full name from fname and lname.
+     */
+    public function getNameAttribute(): string
+    {
+        $first = trim((string)($this->fname ?? ''));
+        $last = trim((string)($this->lname ?? ''));
+        $full = trim($first . ' ' . $last);
+        if ($full !== '') {
+            return $full;
+        }
+        // Fallback to email or phone if name parts are missing
+        return (string)($this->email ?? $this->phone ?? '');
+    }
+
+    public function brands(): HasMany
+    {
+        return $this->hasMany(Brand::class);
     }
 }
