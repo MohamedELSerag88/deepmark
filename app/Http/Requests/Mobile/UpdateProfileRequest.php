@@ -6,8 +6,6 @@ use App\Http\Requests\ResponseShape as FormRequest;
 
 class UpdateProfileRequest extends FormRequest
 {
-
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -16,9 +14,12 @@ class UpdateProfileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
-            "fname" => "required",
-            "lname" => "required",
+            'fname' => 'required|string|max:100',
+            'lname' => 'required|string|max:100',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'country' => 'nullable|string|max:100',
+            'time_zone' => 'nullable|string|max:100',
+            'bio' => 'nullable|string|max:1000',
         ];
     }
 }

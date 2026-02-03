@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Mobile\v1\Home;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Mobile\SubscribeRequest;
 use App\Models\Plan;
 use App\Models\Subscription;
 use App\Services\Billing\StripeService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class SubscriptionController extends Controller {
 
@@ -34,11 +34,20 @@ class SubscriptionController extends Controller {
 		]);
 	}
 
-	public function subscribe(Request $request, StripeService $stripe): JsonResponse
+	public function subscribe(SubscribeRequest $request, StripeService $stripe): JsonResponse
 	{
-		$request->validate([
-			'plan_id' => 'required|integer|exists:plans,id',
-		]);
+		try {
+			return $this->doSubscribe($request, $stripe);
+		} catch (\Throwable $e) {
+			return $this->response->statusFail(
+				['message' => 'Subscription failed.', 'error' => $e->getMessage()],
+				500
+			);
+		}
+	}
+
+	private function doSubscribe(SubscribeRequest $request, StripeService $stripe): JsonResponse
+	{
 		$plan = Plan::find($request->input('plan_id'));
 		if ($plan->price_cents === 0) {
 			$sub = Subscription::create([

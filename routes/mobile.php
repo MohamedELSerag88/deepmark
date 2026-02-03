@@ -74,6 +74,8 @@ Route::group([
         Route::get('users/{id}/projects', 'UserController@projects');
         // projects (brand)
         Route::get('projects/{id}', 'ProjectController@show');
+        // questions (for testing list questions)
+        Route::get('questions', 'QuestionController@index');
     });
 });
 

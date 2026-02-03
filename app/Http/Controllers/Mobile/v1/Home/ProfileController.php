@@ -7,10 +7,10 @@ use App\Http\Requests\Mobile\UpdateProfileRequest;
 use App\Models\BrandChat;
 use App\Models\MeetingRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Storage;
 
-class ProfileController extends Controller {
-
-
+class ProfileController extends Controller
+{
 	public function show(): JsonResponse
 	{
 		$user = auth()->user();
@@ -35,13 +35,7 @@ class ProfileController extends Controller {
 
 		return $this->response->statusOk([
 			'data' => [
-				'user' => [
-					'id' => $user->id,
-					'fname' => $user->fname,
-					'lname' => $user->lname,
-					'email' => $user->email,
-					'phone' => $user->phone,
-				],
+				'user' => $this->profileUserData($user),
 				'stats' => [
 					'chats_count' => $chatsCount,
 					'meetings_count' => $meetingsCount,
@@ -58,18 +52,45 @@ class ProfileController extends Controller {
 	public function update(UpdateProfileRequest $request): JsonResponse
 	{
 		$user = auth()->user();
-		$user->update($request->only(['fname','lname']));
+		$data = $request->only(['fname', 'lname', 'country', 'time_zone', 'bio']);
+
+		if ($request->hasFile('image')) {
+			if ($user->image) {
+				Storage::disk('public')->delete($user->image);
+			}
+			$path = $request->file('image')->store('profiles', 'public');
+			$data['image'] = $path;
+		}
+
+		$user->update($data);
 
 		return $this->response->statusOk([
-			'data' => [
-				'id' => $user->id,
-				'fname' => $user->fname,
-				'lname' => $user->lname,
-				'email' => $user->email,
-				'phone' => $user->phone,
-			],
-			'message' => 'Profile updated successfully'
+			'data' => $this->profileUserData($user->fresh()),
+			'message' => 'Profile updated successfully',
 		]);
+	}
+
+	/**
+	 * Build user payload for profile (show/update) with image URL.
+	 */
+	private function profileUserData($user): array
+	{
+		$imageUrl = null;
+		if ($user->image) {
+			$imageUrl = Storage::disk('public')->url($user->image);
+		}
+
+		return [
+			'id' => $user->id,
+			'fname' => $user->fname,
+			'lname' => $user->lname,
+			'email' => $user->email,
+			'phone' => $user->phone,
+			'image' => $imageUrl,
+			'country' => $user->country,
+			'time_zone' => $user->time_zone,
+			'bio' => $user->bio,
+		];
 	}
 }
 

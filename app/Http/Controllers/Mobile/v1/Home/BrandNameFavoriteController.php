@@ -10,10 +10,18 @@ use Illuminate\Http\Request;
 
 class BrandNameFavoriteController extends Controller
 {
-	public function index(): JsonResponse
+	public function index(Request $request): JsonResponse
 	{
-		$items = BrandNameFavorite::where('user_id', auth()->id())
-			->latest('id')
+		$query = BrandNameFavorite::where('user_id', auth()->id());
+
+		if ($request->filled('name')) {
+			$query->where('name', 'like', '%' . $request->input('name') . '%');
+		}
+		if ($request->filled('archetype')) {
+			$query->where('archetype', 'like', '%' . $request->input('archetype') . '%');
+		}
+
+		$items = $query->latest('id')
 			->get(['id','name','archetype','domains','brand_chat_id','created_at']);
 
 		return $this->response->statusOk([ 'data' => [ 'items' => $items ] ]);

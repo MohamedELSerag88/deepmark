@@ -14,6 +14,18 @@ class BrandNameController extends Controller
 {
 	public function generate(CreateBrandNamesRequest $request, DeepSeekService $ai, DomainAvailabilityService $domains): JsonResponse
 	{
+		try {
+			return $this->doGenerate($request, $ai, $domains);
+		} catch (\Throwable $e) {
+			return $this->response->statusFail(
+				['message' => 'Failed to generate brand names.', 'error' => $e->getMessage()],
+				500
+			);
+		}
+	}
+
+	private function doGenerate(CreateBrandNamesRequest $request, DeepSeekService $ai, DomainAvailabilityService $domains): JsonResponse
+	{
 		$answers = $request->input('answers', []);
 		$language = $request->input('language', 'en');
 		$count = (int)($request->input('count', 12));

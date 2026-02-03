@@ -20,6 +20,18 @@ class BrandTextController extends Controller {
 
 	public function generate(CreateBrandTextRequest $request, DeepSeekService $ai): JsonResponse
 	{
+		try {
+			return $this->doGenerate($request, $ai);
+		} catch (\Throwable $e) {
+			return $this->response->statusFail(
+				['message' => 'Failed to generate brand text.', 'error' => $e->getMessage()],
+				500
+			);
+		}
+	}
+
+	private function doGenerate(CreateBrandTextRequest $request, DeepSeekService $ai): JsonResponse
+	{
 		$answers = $request->input('answers', []);
 		$language = $request->input('language', 'both'); // en, ar, both
 

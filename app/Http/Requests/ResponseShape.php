@@ -17,12 +17,13 @@ class ResponseShape extends FormRequest
     }
     protected function failedValidation(Validator $validator)
     {
-        if (request()->wantsJson()) {
-            $response = $this->response->statusFail($validator->errors()->first(), 422);
+        if (request()->wantsJson() || request()->is('api/*')) {
+            $errors = $validator->errors();
+            $message = $errors->first();
+            $response = $this->response->statusFail(['message' => $message, 'errors' => $errors->toArray()], 422);
             throw new \Illuminate\Validation\ValidationException($validator, $response);
-        } else {
-            throw (new ValidationException($validator))->errorBag($this->errorBag);
         }
+        throw (new ValidationException($validator))->errorBag($this->errorBag);
     }
 
     public function getModelId($id = 4)

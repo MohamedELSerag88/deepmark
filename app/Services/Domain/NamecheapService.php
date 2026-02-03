@@ -71,6 +71,13 @@ class NamecheapService
 
 	private function send(string $command, array $params): array
 	{
+		if ($this->apiUser === '' || $this->apiKey === '' || $this->username === '') {
+			return [
+				'ok' => false,
+				'error' => 'Namecheap API is not configured. Set NAMECHEAP_API_USER, NAMECHEAP_API_KEY, and NAMECHEAP_USERNAME in .env',
+			];
+		}
+
 		$query = array_merge([
 			'ApiUser' => $this->apiUser,
 			'ApiKey' => $this->apiKey,

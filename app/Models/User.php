@@ -26,7 +26,11 @@ class User extends Authenticatable implements JWTSubject
         'otp_token',
         'otp_sent_at',
         'reset_password',
-        'phone'
+        'phone',
+        'image',
+        'country',
+        'time_zone',
+        'bio',
     ];
 
     /**

@@ -17,8 +17,9 @@ class Response extends \Illuminate\Http\JsonResponse {
 
 		$this->additionalHeaders = array_merge($this->additionalHeaders, $headers);
 		$this->responseData = array_merge($this->responseData, $data);
+		$payload = array_merge($this->metaBag, $this->responseData);
 
-		return new static($this->responseData);
+		return new static($payload, $status, $this->additionalHeaders, $options);
 	}
 
 	public function meta($key, $value) {
