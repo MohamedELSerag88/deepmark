@@ -17,6 +17,7 @@ class BrandChat extends Model
 		'answers',
 		'response',
 		'raw_response',
+        'device_token'
 	];
 
 	protected function casts(): array

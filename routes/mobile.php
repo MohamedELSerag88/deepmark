@@ -12,11 +12,22 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+Route::group([
+    'prefix' => 'auth',
+    'namespace' => 'App\Http\Controllers\Mobile\v1'
+], function () {
+    // Option 1: Redirect-based flow (web apps)
+    Route::get('{provider}/redirect', 'Auth\SocialAuthController@redirectToProvider');
+    Route::get('{provider}/callback', 'Auth\SocialAuthController@handleProviderCallback');
 
+    // Option 2: Token exchange flow (mobile apps, SPAs)
+    Route::post('{provider}/token', 'Auth\SocialAuthController@exchangeSocialToken');
+});
 Route::group([
     'prefix' => 'mobile/v1',
     'namespace' => 'App\Http\Controllers\Mobile\v1'
 ], function ($router) {
+
     Route::post('login', 'Auth\LoginController@login');
     Route::post('send-otp', 'Auth\SendOtpController@sendOtp');
     Route::post('check-otp', 'Auth\CheckOtpController@checkOtp');
@@ -26,6 +37,7 @@ Route::group([
     Route::post('social-login', 'Auth\SocialLoginController@login');
     Route::get('questions', 'Home\QuestionController@index');
 
+    Route::post('brand-names', 'Home\BrandNameController@generate');
     Route::group([
         'middleware' => ['auth:api']
     ], function ($router) {
@@ -33,7 +45,7 @@ Route::group([
          Route::get('subscription', 'Home\SubscriptionController@status');
          Route::post('subscribe', 'Home\SubscriptionController@subscribe');
 
-        Route::post('brand-names', 'Home\BrandNameController@generate');
+
         Route::post('brand-names/edit', 'Home\BrandNameController@edit');
         Route::get('brand-names/favorites', 'Home\BrandNameFavoriteController@index');
         Route::post('brand-names/favorites', 'Home\BrandNameFavoriteController@store');

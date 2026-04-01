@@ -8,6 +8,7 @@ use App\Models\BrandChat;
 use App\Models\MeetingRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
+use GuzzleHttp\Client;
 
 class ProfileController extends Controller
 {

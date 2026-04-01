@@ -91,4 +91,35 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Brand::class);
     }
+
+    public static function updateOrCreateSocialUser($provider, $socialUser)
+    {
+
+        // Check if user exists by provider ID
+        $user = self::where(["provider" =>$provider,"provider_id" => $socialUser->getId()])->first();
+
+        if ($user) {
+            return $user;
+        }
+
+        // Check if user exists by email
+        $user = self::where('email', $socialUser->getEmail())->first();
+
+        if ($user) {
+            // Link existing account to social provider
+            $user->update(["provider_id" => $socialUser->getId()]);
+            return $user;
+        }
+
+        // Create new user
+        return self::create([
+            'fname' =>  $socialUser->user['given_name'] ?? $socialUser->getName() ?? $socialUser->getEmail(),
+            'lname' => $socialUser->user['family_name']  ?? $socialUser->get() ?? $socialUser->getEmail(),
+            'email' => $socialUser->getEmail(),
+            'provider' => $provider,
+            "provider_id" => $socialUser->getId(),
+            'image' => $socialUser->getAvatar(),
+            'email_verified_at' => now(), // Social users are verified
+        ]);
+    }
 }

@@ -14,6 +14,7 @@ use App\Services\Domain\DomainAvailabilityService;
 use App\Http\Requests\Mobile\ReserveDomainRequest;
 use App\Services\Domain\NamecheapService;
 use App\Models\DomainReservation;
+use Illuminate\Support\Str;
 
 class BrandTextController extends Controller {
 
@@ -84,19 +85,20 @@ class BrandTextController extends Controller {
 
 		$suggestions = $ai->simpleChat($prompt, $system);
 
-		$parsed = json_decode($suggestions, true);
-		$ok = json_last_error() === JSON_ERROR_NONE && is_array($parsed) && isset($parsed['brand_text']);
+		$parsed = $this->decodeJsonLenient($suggestions);
+		$normalized = $this->normalizeBrandTextResponse($parsed, $language);
+		$ok = is_array($normalized) && isset($normalized['brand_text']);
 
 		BrandChat::create([
 			'topic' => 'brand_text',
 			'user_id' => auth()->id(),
 			'language' => $language,
 			'answers' => $answers,
-			'response' => $ok ? $parsed : null,
+			'response' => $ok ? $normalized : null,
 			'raw_response' => $ok ? null : $suggestions,
 		]);
 
-		if ($ok) return $this->response->statusOk(['data' => $parsed]);
+		if ($ok) return $this->response->statusOk(['data' => $normalized]);
 
 		return $this->response->statusOk([
 			'data' => [
@@ -110,13 +112,80 @@ class BrandTextController extends Controller {
 
 	public function history(): JsonResponse
 	{
-		$items = BrandChat::where('user_id', auth()->id())
-			->latest('id')
-			->limit(50)
+		$keyword = trim((string)request()->query('q', ''));
+
+		$query = BrandChat::where('user_id', auth()->id())
+			->where('topic', 'brand_text')
+			->latest('id');
+
+		// If no keyword, return recent as before
+		if ($keyword === '') {
+			$items = $query
+				->limit(50)
+				->get(['id','language','answers','response','raw_response','created_at']);
+
+			return $this->response->statusOk([
+				'data' => $items
+			]);
+		}
+
+		// With keyword: fetch a larger window, filter in PHP across answers, questions, and taglines
+		$candidates = $query
+			->limit(200)
 			->get(['id','language','answers','response','raw_response','created_at']);
 
+		// Collect all question IDs referenced
+		$allAnswerEntries = collect($candidates)->pluck('answers')->filter()->flatten(1);
+		$questionIds = $allAnswerEntries->pluck('question_id')->filter()->unique()->values()->all();
+		$questionsById = empty($questionIds)
+			? collect()
+			: Question::whereIn('id', $questionIds)->get()->keyBy('id');
+
+		$needle = Str::lower($keyword);
+		$filtered = $candidates->filter(function ($chat) use ($questionsById, $needle) {
+			$parts = [];
+
+			// Answers values + corresponding question text (en/ar) if available
+			$answers = is_array($chat->answers) ? $chat->answers : [];
+			foreach ($answers as $a) {
+				if (isset($a['value'])) {
+					if (is_array($a['value'])) {
+						$parts[] = implode(' ', array_map('strval', $a['value']));
+					} else {
+						$parts[] = (string)$a['value'];
+					}
+				}
+				$qid = isset($a['question_id']) ? (int)$a['question_id'] : null;
+				if ($qid && $questionsById->has($qid)) {
+					$q = $questionsById->get($qid);
+					$parts[] = (string)($q->question_en ?? '');
+					$parts[] = (string)($q->question_ar ?? '');
+				}
+			}
+
+			// Response brand_text taglines (en/ar)
+			$response = is_array($chat->response) ? $chat->response : null;
+			if (is_array($response) && isset($response['brand_text'])) {
+				$bt = $response['brand_text'];
+				// both-language shape
+				if (isset($bt['en']) && is_array($bt['en']) && isset($bt['en']['taglines']) && is_array($bt['en']['taglines'])) {
+					$parts = array_merge($parts, array_map('strval', $bt['en']['taglines']));
+				}
+				if (isset($bt['ar']) && is_array($bt['ar']) && isset($bt['ar']['taglines']) && is_array($bt['ar']['taglines'])) {
+					$parts = array_merge($parts, array_map('strval', $bt['ar']['taglines']));
+				}
+				// single-language shape
+				if (isset($bt['taglines']) && is_array($bt['taglines'])) {
+					$parts = array_merge($parts, array_map('strval', $bt['taglines']));
+				}
+			}
+
+			$haystack = Str::lower(implode(' ', $parts));
+			return $haystack !== '' && Str::contains($haystack, $needle);
+		})->values()->take(50);
+
 		return $this->response->statusOk([
-			'data' => $items
+			'data' => $filtered
 		]);
 	}
 
@@ -160,8 +229,9 @@ class BrandTextController extends Controller {
 			. $comment;
 
 		$suggestions = $ai->simpleChat($prompt, $system);
-		$parsed = json_decode($suggestions, true);
-		$ok = json_last_error() === JSON_ERROR_NONE && is_array($parsed) && isset($parsed['brand_text']);
+		$parsed = $this->decodeJsonLenient($suggestions);
+		$normalized = $this->normalizeBrandTextResponse($parsed, $effectiveLanguage);
+		$ok = is_array($normalized) && isset($normalized['brand_text']);
 
 		BrandChat::create([
 			'parent_id' => $parent->id,
@@ -169,11 +239,11 @@ class BrandTextController extends Controller {
 			'user_id' => auth()->id(),
 			'language' => $effectiveLanguage,
 			'answers' => $parent->answers,
-			'response' => $ok ? $parsed : null,
+			'response' => $ok ? $normalized : null,
 			'raw_response' => $ok ? null : $suggestions,
 		]);
 
-		if ($ok) return $this->response->statusOk(['data' => $parsed]);
+		if ($ok) return $this->response->statusOk(['data' => $normalized]);
 
 		return $this->response->statusOk([
 			'data' => [
@@ -183,6 +253,81 @@ class BrandTextController extends Controller {
 				'raw' => $suggestions
 			]
 		]);
+	}
+
+	/**
+	 * Attempts to decode JSON that may be wrapped in Markdown code fences or contain
+	 * surrounding text. Falls back to extracting the first balanced JSON object.
+	 */
+	private function decodeJsonLenient(string $text): ?array
+	{
+		$direct = json_decode($text, true);
+		if (json_last_error() === JSON_ERROR_NONE && is_array($direct)) {
+			return $direct;
+		}
+
+		$trimmed = trim($text);
+
+		// Match fenced code block ```json ... ```
+		if (preg_match('/```(?:json)?\\s*([\\s\\S]*?)\\s*```/i', $trimmed, $m)) {
+			$block = trim($m[1]);
+			$fromFence = json_decode($block, true);
+			if (json_last_error() === JSON_ERROR_NONE && is_array($fromFence)) {
+				return $fromFence;
+			}
+		}
+
+		// Remove fence markers and retry
+		$withoutFences = preg_replace('/```[a-z]*\\s*|```/i', '', $trimmed);
+		if (is_string($withoutFences)) {
+			$retry = json_decode(trim($withoutFences), true);
+			if (json_last_error() === JSON_ERROR_NONE && is_array($retry)) {
+				return $retry;
+			}
+		}
+
+		// Extract first balanced {...} object (recursive regex)
+		if (preg_match('/\\{(?:[^{}]|(?R))*\\}/s', $trimmed, $m2)) {
+			$object = $m2[0];
+			$fromObject = json_decode($object, true);
+			if (json_last_error() === JSON_ERROR_NONE && is_array($fromObject)) {
+				return $fromObject;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Normalize various plausible shapes to the expected one containing 'brand_text'.
+	 * Currently supports mapping { items: [{tagline: "..."}] } into brand_text.taglines.
+	 */
+	private function normalizeBrandTextResponse(?array $parsed, string $language): ?array
+	{
+		if (!is_array($parsed)) {
+			return null;
+		}
+		if (isset($parsed['brand_text'])) {
+			return $parsed;
+		}
+
+		// Handle simple { items: [{ tagline: "..."}, ...] } shape
+		if (isset($parsed['items']) && is_array($parsed['items'])) {
+			$taglines = [];
+			foreach ($parsed['items'] as $it) {
+				if (is_array($it) && isset($it['tagline']) && is_string($it['tagline'])) {
+					$taglines[] = $it['tagline'];
+				}
+			}
+			if (!empty($taglines)) {
+				if ($language === 'both') {
+					return ['brand_text' => ['en' => ['taglines' => $taglines]]];
+				}
+				return ['brand_text' => ['taglines' => $taglines]];
+			}
+		}
+
+		return $parsed;
 	}
 
 	public function checkDomains(CheckDomainRequest $request, DomainAvailabilityService $domains): JsonResponse

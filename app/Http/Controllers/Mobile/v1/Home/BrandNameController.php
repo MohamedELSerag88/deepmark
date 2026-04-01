@@ -59,10 +59,11 @@ class BrandNameController extends Controller
 			$instructions .= "Language: Provide names that work globally; if Arabic words are used, keep them simple.\n";
 		}
 
+
 		$prompt = $instructions . "\nQ&A:\n" . $qaBlock;
 		$raw = $ai->simpleChat($prompt, $system);
-		$parsed = json_decode($raw, true);
-		$list = (json_last_error() === JSON_ERROR_NONE && isset($parsed['suggestions']) && is_array($parsed['suggestions']))
+		$parsed = $this->decodeJsonLenient($raw);
+		$list = (is_array($parsed) && isset($parsed['suggestions']) && is_array($parsed['suggestions']))
 			? $parsed['suggestions'] : [];
 
 		$items = [];
@@ -95,14 +96,59 @@ class BrandNameController extends Controller
 		// Persist as chat root for future edits
 		BrandChat::create([
 			'topic' => 'brand_names',
-			'user_id' => auth()->id(),
+			'user_id' => auth()->id() ,
 			'language' => $language,
 			'answers' => $answers,
 			'response' => ['items' => $items],
 			'raw_response' => null,
+            'device_token' => request()->get('device_token'),
 		]);
 
 		return $this->response->statusOk([ 'data' => [ 'items' => $items ] ]);
+	}
+
+	/**
+	 * Attempts to decode JSON that may be wrapped in Markdown code fences or contain
+	 * surrounding text. Falls back to extracting the first balanced JSON object.
+	 */
+	private function decodeJsonLenient(string $text): ?array
+	{
+		// Straight decode first
+		$direct = json_decode($text, true);
+		if (json_last_error() === JSON_ERROR_NONE && is_array($direct)) {
+			return $direct;
+		}
+
+		$trimmed = trim($text);
+
+		// Match fenced code block ```json ... ```
+		if (preg_match('/```(?:json)?\\s*([\\s\\S]*?)\\s*```/i', $trimmed, $m)) {
+			$block = trim($m[1]);
+			$fromFence = json_decode($block, true);
+			if (json_last_error() === JSON_ERROR_NONE && is_array($fromFence)) {
+				return $fromFence;
+			}
+		}
+
+		// Remove fence markers and retry
+		$withoutFences = preg_replace('/```[a-z]*\\s*|```/i', '', $trimmed);
+		if (is_string($withoutFences)) {
+			$retry = json_decode(trim($withoutFences), true);
+			if (json_last_error() === JSON_ERROR_NONE && is_array($retry)) {
+				return $retry;
+			}
+		}
+
+		// Extract first balanced {...} object (recursive regex)
+		if (preg_match('/\\{(?:[^{}]|(?R))*\\}/s', $trimmed, $m2)) {
+			$object = $m2[0];
+			$fromObject = json_decode($object, true);
+			if (json_last_error() === JSON_ERROR_NONE && is_array($fromObject)) {
+				return $fromObject;
+			}
+		}
+
+		return null;
 	}
 
 	public function edit(\Illuminate\Http\Request $request, DeepSeekService $ai, DomainAvailabilityService $domains): JsonResponse
@@ -110,7 +156,6 @@ class BrandNameController extends Controller
 		$chatId = (int)$request->input('chat_id');
 		$comment = (string)$request->input('comment', '');
 		$tlds = (array)$request->input('tlds', ['com','io','ai']);
-
 		$parent = BrandChat::where('id', $chatId)
 			->where('user_id', auth()->id())
 			->where('topic', 'brand_names')
@@ -136,8 +181,8 @@ class BrandNameController extends Controller
 			. $comment;
 
 		$raw = $ai->simpleChat($prompt, $system);
-		$parsed = json_decode($raw, true);
-		$list = (json_last_error() === JSON_ERROR_NONE && isset($parsed['suggestions']) && is_array($parsed['suggestions']))
+		$parsed = $this->decodeJsonLenient($raw);
+		$list = (is_array($parsed) && isset($parsed['suggestions']) && is_array($parsed['suggestions']))
 			? $parsed['suggestions'] : [];
 
 		$items = [];

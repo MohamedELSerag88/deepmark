@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Mobile\v1\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Mobile\CheckOtpRequest;
 use App\Http\Resources\Mobile\LoginResource;
+use App\Models\BrandChat;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -38,6 +39,7 @@ class CheckOtpController extends Controller {
 
         $checkUser->update(['otp_token' => null]);
         $checkUser->token = $token;
+        BrandChat::whereNull('user_id')->where('device_token',request()->get('device_token'))->update(['user_id' => $checkUser->id]);
         return $this->response->statusOk(['data' => new LoginResource($checkUser), "message" => trans('messages.logged_in_successfully')]);
     }
 

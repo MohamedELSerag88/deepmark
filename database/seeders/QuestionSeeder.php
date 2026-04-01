@@ -21,8 +21,8 @@ class QuestionSeeder extends Seeder
 				'image_url' => null,
 				'example_answer' => 'We believe great design should be accessible, human, and useful.',
 				'resources' => [
-					[ 'title' => 'Why it matters', 'text' => 'Customers connect with personalities, not services.' ],
-					[ 'title' => 'Elements of a brand personality', 'text' => 'Sincerity, Excitement, Competence, Sophistication, Ruggedness' ],
+					[ 'url' => 'https://www.google.com/', 'text' => 'Customers connect with personalities, not services.' ],
+					[ 'url' => 'https://www.google.com/', 'text' => 'Sincerity, Excitement, Competence, Sophistication, Ruggedness' ],
 				],
 			],
 			[
@@ -35,7 +35,10 @@ class QuestionSeeder extends Seeder
 				'video_url' => null,
 				'image_url' => null,
 				'example_answer' => 'Ambitious founders who value clarity, speed, and practical outcomes.',
-				'resources' => null,
+                'resources' => [
+                    [ 'url' => 'https://www.google.com/', 'text' => 'Customers connect with personalities, not services.' ],
+                    [ 'url' => 'https://www.google.com/', 'text' => 'Sincerity, Excitement, Competence, Sophistication, Ruggedness' ],
+                ],
 			],
 			[
 				'question_en' => 'What transformation should customers feel after engaging with your brand?',
@@ -47,7 +50,10 @@ class QuestionSeeder extends Seeder
 				'video_url' => null,
 				'image_url' => null,
 				'example_answer' => 'From overwhelmed to confident and action‑ready.',
-				'resources' => null,
+                'resources' => [
+                    [ 'url' => 'https://www.google.com/', 'text' => 'Customers connect with personalities, not services.' ],
+                    [ 'url' => 'https://www.google.com/', 'text' => 'Sincerity, Excitement, Competence, Sophistication, Ruggedness' ],
+                ],
 			],
 			[
 				'question_en' => 'How would you describe your brand’s voice and tone?',
@@ -59,7 +65,10 @@ class QuestionSeeder extends Seeder
 				'video_url' => null,
 				'image_url' => null,
 				'example_answer' => 'Friendly, concise, helpful – “Let’s get you moving in minutes.”',
-				'resources' => null,
+                'resources' => [
+                    [ 'url' => 'https://www.google.com/', 'text' => 'Customers connect with personalities, not services.' ],
+                    [ 'url' => 'https://www.google.com/', 'text' => 'Sincerity, Excitement, Competence, Sophistication, Ruggedness' ],
+                ],
 			],
 			[
 				'question_en' => 'Who are your top competitors and how are you different?',
@@ -71,7 +80,10 @@ class QuestionSeeder extends Seeder
 				'video_url' => null,
 				'image_url' => null,
 				'example_answer' => 'We offer guided workflows and live onboarding; they’re fully self‑serve.',
-				'resources' => null,
+                'resources' => [
+                    [ 'url' => 'https://www.google.com/', 'text' => 'Customers connect with personalities, not services.' ],
+                    [ 'url' => 'https://www.google.com/', 'text' => 'Sincerity, Excitement, Competence, Sophistication, Ruggedness' ],
+                ],
 			],
 			[
 				'question_en' => 'What visual attributes should your brand consistently express?',
@@ -83,7 +95,10 @@ class QuestionSeeder extends Seeder
 				'video_url' => null,
 				'image_url' => null,
 				'example_answer' => 'Warm neutrals, rounded typography, generous white space, calming imagery.',
-				'resources' => null,
+                'resources' => [
+                    [ 'url' => 'https://www.google.com/', 'text' => 'Customers connect with personalities, not services.' ],
+                    [ 'url' => 'https://www.google.com/', 'text' => 'Sincerity, Excitement, Competence, Sophistication, Ruggedness' ],
+                ],
 			],
 			[
 				'question_en' => 'What single action do you most want visitors to take?',
