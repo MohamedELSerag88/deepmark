@@ -20,6 +20,7 @@ class QuestionSeeder extends Seeder
 				'video_url' => null,
 				'image_url' => null,
 				'example_answer' => 'We believe great design should be accessible, human, and useful.',
+                "why_matters"=>"Customers connect with personalities, not services.",
 				'resources' => [
 					[ 'url' => 'https://www.google.com/', 'text' => 'Customers connect with personalities, not services.' ],
 					[ 'url' => 'https://www.google.com/', 'text' => 'Sincerity, Excitement, Competence, Sophistication, Ruggedness' ],
@@ -35,6 +36,7 @@ class QuestionSeeder extends Seeder
 				'video_url' => null,
 				'image_url' => null,
 				'example_answer' => 'Ambitious founders who value clarity, speed, and practical outcomes.',
+                "why_matters"=>"Customers connect with personalities, not services.",
                 'resources' => [
                     [ 'url' => 'https://www.google.com/', 'text' => 'Customers connect with personalities, not services.' ],
                     [ 'url' => 'https://www.google.com/', 'text' => 'Sincerity, Excitement, Competence, Sophistication, Ruggedness' ],
@@ -50,6 +52,7 @@ class QuestionSeeder extends Seeder
 				'video_url' => null,
 				'image_url' => null,
 				'example_answer' => 'From overwhelmed to confident and action‑ready.',
+                "why_matters"=>"Customers connect with personalities, not services.",
                 'resources' => [
                     [ 'url' => 'https://www.google.com/', 'text' => 'Customers connect with personalities, not services.' ],
                     [ 'url' => 'https://www.google.com/', 'text' => 'Sincerity, Excitement, Competence, Sophistication, Ruggedness' ],
@@ -65,6 +68,7 @@ class QuestionSeeder extends Seeder
 				'video_url' => null,
 				'image_url' => null,
 				'example_answer' => 'Friendly, concise, helpful – “Let’s get you moving in minutes.”',
+                "why_matters"=>"Customers connect with personalities, not services.",
                 'resources' => [
                     [ 'url' => 'https://www.google.com/', 'text' => 'Customers connect with personalities, not services.' ],
                     [ 'url' => 'https://www.google.com/', 'text' => 'Sincerity, Excitement, Competence, Sophistication, Ruggedness' ],
@@ -80,6 +84,7 @@ class QuestionSeeder extends Seeder
 				'video_url' => null,
 				'image_url' => null,
 				'example_answer' => 'We offer guided workflows and live onboarding; they’re fully self‑serve.',
+                "why_matters"=>"Customers connect with personalities, not services.",
                 'resources' => [
                     [ 'url' => 'https://www.google.com/', 'text' => 'Customers connect with personalities, not services.' ],
                     [ 'url' => 'https://www.google.com/', 'text' => 'Sincerity, Excitement, Competence, Sophistication, Ruggedness' ],
@@ -95,6 +100,7 @@ class QuestionSeeder extends Seeder
 				'video_url' => null,
 				'image_url' => null,
 				'example_answer' => 'Warm neutrals, rounded typography, generous white space, calming imagery.',
+                "why_matters"=>"Customers connect with personalities, not services.",
                 'resources' => [
                     [ 'url' => 'https://www.google.com/', 'text' => 'Customers connect with personalities, not services.' ],
                     [ 'url' => 'https://www.google.com/', 'text' => 'Sincerity, Excitement, Competence, Sophistication, Ruggedness' ],
@@ -110,6 +116,7 @@ class QuestionSeeder extends Seeder
 				'video_url' => null,
 				'image_url' => null,
 				'example_answer' => 'Start free trial (creates an account and starts onboarding).',
+                "why_matters"=>"Customers connect with personalities, not services.",
 				'resources' => null,
 			],
 		];
@@ -126,6 +133,7 @@ class QuestionSeeder extends Seeder
 					'video_path' => $item['video_path'] ?? null,
 					'image_url' => $item['image_url'] ?? null,
 					'example_answer' => $item['example_answer'] ?? null,
+                    "why_matters"=> $item['why_matters'] ?? null,
 					'resources' => $item['resources'] ?? null,
 				]
 			);

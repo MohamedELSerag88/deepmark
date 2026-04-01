@@ -15,7 +15,7 @@ class QuestionResource extends JsonResource
 	public function toArray(Request $request): array
 	{
 		$resources = $this->formatResources($this->resources);
-		$whyMatters = $this->extractWhyMatters($this->resources);
+		$whyMatters = $this->why_matters ?? $this->extractWhyMatters($this->resources);
 
 		return [
 			"id" => $this->id,
@@ -29,7 +29,7 @@ class QuestionResource extends JsonResource
 			"video_path" => $this->video_path,
 			"image_url" => $this->image_url,
 			"example_answer" => $this->example_answer,
-			"why_matters" => $whyMatters,
+			"why_matters" => $this->why_matters,
 			"resources" => $resources,
 		];
 	}

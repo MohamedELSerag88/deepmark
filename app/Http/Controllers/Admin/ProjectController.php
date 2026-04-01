@@ -3,39 +3,39 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\BrandChat;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {
+    public function index(Request $request): JsonResponse
+    {
+        $query = BrandChat::query();
+        // Sort by join date
+        $query->orderByDesc('id');
+
+        $brands = $query->paginate((int)$request->get('per_page', 10));
+
+        return $this->response->statusOk([
+            'brands' => $brands->items(),
+            'pagination' => [
+                'current_page' => $brands->currentPage(),
+                'per_page' => $brands->perPage(),
+                'total' => $brands->total(),
+                'last_page' => $brands->lastPage(),
+            ],
+        ]);
+    }
+
     public function show($id): JsonResponse
     {
-        // Demo payload that matches the Brand page needs
+        $brand = BrandChat::find($id);
+        if (!$brand) {
+            return $this->response->notFound(['message' => 'Brand not found'], 404);
+        }
         return $this->response->statusOk([
-            'project' => [
-                'id' => (int) $id,
-                'name' => 'Project Name 1',
-                'status' => 'Pending Feedback',
-                'status_badge' => 'Pending',
-                'plan' => 'Standard Plan',
-                'plan_badge' => 'Paid Plan',
-                'assigned_to' => 'Farouk Ahmed',
-                'joined_at' => '2025-09-21',
-            ],
-            'brief' => 'Information about what the user has submitted in the chat',
-            'concepts' => [],
-            'feedback' => [
-                [
-                    'text' => 'The overall layout feels clean, but we’d like the navigation bar to be more prominent...',
-                    'user' => 'Mohamed Samir',
-                    'avatar' => 'https://i.pravatar.cc/40?img=12',
-                ],
-                [
-                    'text' => 'Increase the visibility of the navigation bar (spacing + bolder labels).',
-                    'user' => 'Admin',
-                    'avatar' => null,
-                ],
-            ],
-            'files' => [],
+            'brand' => $brand
         ]);
     }
 }

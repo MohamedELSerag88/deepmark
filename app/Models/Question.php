@@ -16,6 +16,7 @@ class Question extends Model
 		'answers',
 			'description_en',
 			'description_ar',
+            'why_matters',
 			'video_url',
 			'video_path',
 			'image_url',

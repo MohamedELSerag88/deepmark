@@ -76,7 +76,11 @@ Route::group([
     // auth
     Route::post('user/login', 'AuthController@login');
     Route::group(['middleware' => ['auth:admin']], function ($router) {
+        // dashboard
+        Route::get('dashboard', 'DashboardController@overview');
         Route::get('user/profile', 'AuthController@profile');
+        // users export
+        Route::get('users/export/download', 'UserController@exportDownload');
         // users
         Route::get('users', 'UserController@index');
         Route::get('users/export', 'UserController@export');
@@ -85,9 +89,24 @@ Route::group([
         Route::delete('users/{id}', 'UserController@destroy');
         Route::get('users/{id}/projects', 'UserController@projects');
         // projects (brand)
+        Route::get('brands', 'ProjectController@index');
         Route::get('projects/{id}', 'ProjectController@show');
-        // questions (for testing list questions)
+        Route::get('brands/{id}', 'ProjectController@show');
+        // questions CRUD
         Route::get('questions', 'QuestionController@index');
+        Route::post('questions', 'QuestionController@store');
+        Route::get('questions/{id}', 'QuestionController@show');
+        Route::put('questions/{id}', 'QuestionController@update');
+        Route::delete('questions/{id}', 'QuestionController@destroy');
+        // plans CRUD
+        Route::get('plans', 'PlanController@index');
+        Route::post('plans', 'PlanController@store');
+        Route::get('plans/{id}', 'PlanController@show');
+        Route::put('plans/{id}', 'PlanController@update');
+        Route::delete('plans/{id}', 'PlanController@destroy');
+        // meetings admin
+        Route::get('meetings', 'MeetingController@index');
+        Route::put('meetings/{id}', 'MeetingController@update');
     });
 });
 

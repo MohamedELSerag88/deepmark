@@ -68,18 +68,51 @@ class UserController extends Controller
         if (!$user) {
             return $this->response->notFound(['message' => 'User not found'], 404);
         }
+        // Projects (brand chats)
+        $projects = \App\Models\BrandChat::where('user_id', $user->id)
+            ->latest('id')
+            ->limit(20)
+            ->get([
+                'id','parent_id','user_id','topic','language','answers','response','raw_response','created_at','updated_at','device_token'
+            ]);
+
+        // Latest subscription with plan details (for quick summary)
+        $latestSub = \App\Models\Subscription::with('plan')
+            ->where('user_id', $user->id)
+            ->latest('id')
+            ->first();
+        $latestSubMapped = $latestSub ? [
+            'id' => $latestSub->id,
+            'user_id' => $latestSub->user_id,
+            'plan_id' => $latestSub->plan_id,
+            'plan_name' => $latestSub->plan?->name,
+            'amount_cents' => $latestSub->plan?->price_cents,
+            'currency' => $latestSub->plan?->currency,
+            'interval' => $latestSub->plan?->interval,
+            'status' => $latestSub->status,
+            'started_at' => $latestSub->started_at,
+            'ends_at' => $latestSub->ends_at,
+            'stripe_session_id' => $latestSub->stripe_session_id,
+            'stripe_subscription_id' => $latestSub->stripe_subscription_id,
+            'created_at' => $latestSub->created_at,
+        ] : null;
+
         return $this->response->statusOk([
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,
+                'fname' => $user->fname,
+                'lname' => $user->lname,
                 'email' => $user->email,
+                'image' => $user->image,
+                'bio' => $user->bio,
                 'joined_at' => optional($user->created_at)->toDateString(),
                 'last_login' => optional($user->updated_at)->toDateTimeString(),
             ],
-            // demo tabs payloads
-            'projects' => [],
-            'favorites' => [],
-            'plans' => [],
+            'projects' => $projects,
+            // For compatibility with existing UI labels:
+            'favorites' => $user->favorites,
+            'plans' =>  $latestSubMapped,
         ]);
     }
 
@@ -109,6 +142,32 @@ class UserController extends Controller
                 'size_kb' => round(strlen($csv) / 1024),
                 'url' => $url,
             ],
+        ]);
+    }
+
+    /**
+     * Stream the CSV directly as a download (no storage URL needed).
+     */
+    public function exportDownload(Request $request)
+    {
+        $filename = 'users_export_' . now()->format('Ymd_His') . '.csv';
+
+        $callback = function () {
+            $out = fopen('php://output', 'w');
+            // header
+            fputcsv($out, ['ID', 'Name', 'Email']);
+            // body
+            User::chunk(500, function ($chunk) use ($out) {
+                foreach ($chunk as $u) {
+                    fputcsv($out, [$u->id, $u->name, $u->email]);
+                }
+            });
+            fclose($out);
+        };
+
+        return response()->streamDownload($callback, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
         ]);
     }
 
