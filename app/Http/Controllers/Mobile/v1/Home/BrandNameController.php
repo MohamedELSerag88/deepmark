@@ -94,7 +94,7 @@ class BrandNameController extends Controller
 		}
 
 		// Persist as chat root for future edits
-		BrandChat::create([
+        $chat = BrandChat::create([
 			'topic' => 'brand_names',
 			'user_id' => auth()->id() ,
 			'language' => $language,
@@ -104,7 +104,7 @@ class BrandNameController extends Controller
             'device_token' => request()->get('device_token'),
 		]);
 
-		return $this->response->statusOk([ 'data' => [ 'items' => $items ] ]);
+		return $this->response->statusOk([ 'data' => [ "chat_id" => $chat->id ,'items' => $items ] ]);
 	}
 
 	/**
@@ -211,7 +211,7 @@ class BrandNameController extends Controller
 			];
 		}
 
-		BrandChat::create([
+		$chat = BrandChat::create([
 			'parent_id' => $parent->id,
 			'topic' => 'brand_names',
 			'user_id' => auth()->id(),
@@ -221,7 +221,7 @@ class BrandNameController extends Controller
 			'raw_response' => null,
 		]);
 
-		return $this->response->statusOk(['data' => ['items' => $items]]);
+		return $this->response->statusOk(['data' => ["chat_id" => $chat->id , 'items' => $items]]);
 	}
 }
 
