@@ -94,8 +94,9 @@ class BrandNameController extends Controller
 		}
 
 		// Persist as chat root for future edits
+        $firstTopic = $items[0]['name'] ?? 'brand_names';
         $chat = BrandChat::create([
-			'topic' => 'brand_names',
+			'topic' => $firstTopic,
 			'user_id' => auth()->id() ,
 			'language' => $language,
 			'answers' => $answers,
@@ -158,7 +159,6 @@ class BrandNameController extends Controller
 		$tlds = (array)$request->input('tlds', ['com','io','ai']);
 		$parent = BrandChat::where('id', $chatId)
 			->where('user_id', auth()->id())
-			->where('topic', 'brand_names')
 			->first();
 		if (!$parent) {
 			return $this->response->statusFail('Chat not found', 404);
@@ -210,18 +210,7 @@ class BrandNameController extends Controller
 				'liked' => false,
 			];
 		}
-
-		$chat = BrandChat::create([
-			'parent_id' => $parent->id,
-			'topic' => 'brand_names',
-			'user_id' => auth()->id(),
-			'language' => $parent->language,
-			'answers' => $parent->answers,
-			'response' => ['items' => $items],
-			'raw_response' => null,
-		]);
-
-		return $this->response->statusOk(['data' => ["chat_id" => $chat->id , 'items' => $items]]);
+		return $this->response->statusOk(['data' => ["chat_id" => $chatId , 'items' => $items]]);
 	}
 }
 

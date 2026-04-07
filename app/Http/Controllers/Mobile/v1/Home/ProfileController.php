@@ -8,6 +8,7 @@ use App\Models\BrandChat;
 use App\Models\MeetingRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
 use GuzzleHttp\Client;
 
 class ProfileController extends Controller
@@ -78,7 +79,10 @@ class ProfileController extends Controller
 	{
 		$imageUrl = null;
 		if ($user->image) {
-			$imageUrl = Storage::disk('public')->url($user->image);
+			$image = (string)$user->image;
+			$imageUrl = (str_starts_with($image, 'http://') || str_starts_with($image, 'https://'))
+				? $image
+				: Storage::disk('public')->url($image);
 		}
 
 		return [
@@ -91,7 +95,34 @@ class ProfileController extends Controller
 			'country' => $user->country,
 			'time_zone' => $user->time_zone,
 			'bio' => $user->bio,
+			// Convenience fields for UI
+			'name' => $user->name,
 		];
+	}
+
+	/**
+	 * Update password for the authenticated user.
+	 * Expects: current_password, password, password_confirmation
+	 */
+	public function updatePassword(\Illuminate\Http\Request $request): JsonResponse
+	{
+		$validated = $request->validate([
+			'current_password' => 'required|string',
+			'password' => 'required|string|min:8|confirmed',
+		]);
+
+		$user = auth()->user();
+		if (!Hash::check($validated['current_password'], $user->getAuthPassword())) {
+			return $this->response->statusFail(['message' => 'Current password is incorrect'], 422);
+		}
+
+		// 'password' is cast as 'hashed' in User model, so assignment auto-hashes
+		$user->password = $validated['password'];
+		$user->save();
+
+		return $this->response->statusOk([
+			'message' => 'Password updated successfully'
+		]);
 	}
 }
 

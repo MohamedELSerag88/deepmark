@@ -58,10 +58,13 @@ Route::group([
          Route::post('brand-text/edit', 'Home\BrandTextController@edit');
          Route::post('brand-text/domains', 'Home\BrandTextController@checkDomains');
          Route::post('brand-text/reserve-domain', 'Home\BrandTextController@reserveDomain');
+         // User projects (BrandChat)
+         Route::get('projects', 'Home\ProjectController@index');
          Route::get('meetings', 'Home\MeetingController@index');
          Route::post('meetings', 'Home\MeetingController@store');
          Route::get('profile', 'Home\ProfileController@show');
-         Route::patch('profile', 'Home\ProfileController@update');
+         Route::post('profile', 'Home\ProfileController@update');
+         Route::patch('profile/password', 'Home\ProfileController@updatePassword');
     });
 
      // Stripe webhook (public)
