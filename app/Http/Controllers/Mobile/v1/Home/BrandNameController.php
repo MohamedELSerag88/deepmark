@@ -134,11 +134,11 @@ class BrandNameController extends Controller
 			$name = trim((string)($s['name'] ?? ''));
 			if ($name === '') continue;
 
-			$domainResults = $domains->check($name, $tlds) ;
-			$primary = collect($domainResults)->firstWhere('domain', strtolower($name) . '.com')
-				?: (count($domainResults) ? $domainResults[0] : ['domain' => strtolower($name) . '.com', 'available' => null]);
-//            $domainResults = [];
-//            $primary = ['domain' => strtolower($name) . '.com', 'available' => null];
+//			$domainResults = $domains->check($name, $tlds) ;
+//			$primary = collect($domainResults)->firstWhere('domain', strtolower($name) . '.com')
+//				?: (count($domainResults) ? $domainResults[0] : ['domain' => strtolower($name) . '.com', 'available' => null]);
+            $domainResults = [];
+            $primary = ['domain' => strtolower($name) . '.com', 'available' => null];
 			$items[] = [
 				'suggestion_index' => $idx,
 				'id' => $idx,
@@ -300,10 +300,11 @@ class BrandNameController extends Controller
 		foreach ($list as $s) {
 			$name = trim((string)($s['name'] ?? ''));
 			if ($name === '') continue;
-			$domainResults = $domains->check($name, $tlds);
-			$primary = collect($domainResults)->firstWhere('domain', strtolower($name) . '.com')
-				?: (count($domainResults) ? $domainResults[0] : ['domain' => strtolower($name) . '.com', 'available' => null]);
-
+//			$domainResults = $domains->check($name, $tlds);
+//			$primary = collect($domainResults)->firstWhere('domain', strtolower($name) . '.com')
+//				?: (count($domainResults) ? $domainResults[0] : ['domain' => strtolower($name) . '.com', 'available' => null]);
+            $domainResults = [];
+            $primary = ['domain' => strtolower($name) . '.com', 'available' => null];
 			$items[] = [
 				'suggestion_index' => $idx,
 				'id' => $idx,
