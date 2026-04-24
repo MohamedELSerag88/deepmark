@@ -60,6 +60,7 @@ Route::group([
          Route::post('brand-text/reserve-domain', 'Home\BrandTextController@reserveDomain');
          // User projects (BrandChat)
          Route::get('projects', 'Home\ProjectController@index');
+         Route::get('projects/{id}', 'Home\ProjectController@show');
          Route::get('meetings', 'Home\MeetingController@index');
          Route::post('meetings', 'Home\MeetingController@store');
          Route::get('profile', 'Home\ProfileController@show');

@@ -12,7 +12,7 @@ class BrandNameFavoriteController extends Controller
 {
 	public function index(Request $request): JsonResponse
 	{
-		$query = BrandNameFavorite::where('user_id', auth()->id());
+		$query = BrandNameFavorite::where(['user_id'=> auth()->id(),'brand_chat_id' => $request->project_id]);
 
 		if ($request->filled('name')) {
 			$query->where('name', 'like', '%' . $request->input('name') . '%');

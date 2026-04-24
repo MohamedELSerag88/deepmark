@@ -77,7 +77,8 @@ class BrandNameController extends Controller
 				?: (count($domainResults) ? $domainResults[0] : ['domain' => strtolower($name) . '.com', 'available' => null]);
 
 			$items[] = [
-				'id' => $idx++,
+				'suggestion_index' => $idx,
+				'id' => $idx,
 				'name' => $name,
 				'archetype' => (string)($s['archetype'] ?? ''),
 				'domains' => [
@@ -91,21 +92,34 @@ class BrandNameController extends Controller
 				],
 				'liked' => false,
 			];
+			$idx++;
 		}
 
-		// Persist as chat root for future edits
-        $firstTopic = $items[0]['name'] ?? 'brand_names';
-        $chat = BrandChat::create([
-			'topic' => $firstTopic,
-			'user_id' => auth()->id() ,
+		// Persist as project root (BrandChat id = project id for GET projects/{id})
+		$chat = BrandChat::create([
+			'topic' => 'brand_names',
+			'user_id' => auth()->id(),
 			'language' => $language,
 			'answers' => $answers,
 			'response' => ['items' => $items],
 			'raw_response' => null,
-            'device_token' => request()->get('device_token'),
+			'device_token' => request()->get('device_token'),
 		]);
 
-		return $this->response->statusOk([ 'data' => [ "chat_id" => $chat->id ,'items' => $items ] ]);
+		$projectId = $chat->id;
+		foreach ($items as $k => $row) {
+			$items[$k]['project_id'] = $projectId;
+		}
+		$chat->update(['response' => ['items' => $items]]);
+
+		return $this->response->statusOk([
+			'data' => [
+				'id' => $projectId,
+				'project_id' => $projectId,
+				'chat_id' => $projectId,
+				'items' => $items,
+			],
+		]);
 	}
 
 	/**
@@ -195,7 +209,9 @@ class BrandNameController extends Controller
 				?: (count($domainResults) ? $domainResults[0] : ['domain' => strtolower($name) . '.com', 'available' => null]);
 
 			$items[] = [
-				'id' => $idx++,
+				'suggestion_index' => $idx,
+				'id' => $idx,
+				'project_id' => $chatId,
 				'name' => $name,
 				'archetype' => (string)($s['archetype'] ?? ''),
 				'domains' => [
@@ -209,8 +225,21 @@ class BrandNameController extends Controller
 				],
 				'liked' => false,
 			];
+			$idx++;
 		}
-		return $this->response->statusOk(['data' => ["chat_id" => $chatId , 'items' => $items]]);
+
+		$response = is_array($parent->response) ? $parent->response : [];
+		$response['items'] = $items;
+		$parent->update(['response' => $response]);
+
+		return $this->response->statusOk([
+			'data' => [
+				'id' => $chatId,
+				'project_id' => $chatId,
+				'chat_id' => $chatId,
+				'items' => $items,
+			],
+		]);
 	}
 }
 

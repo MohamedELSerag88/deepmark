@@ -26,20 +26,7 @@ class ProjectController extends Controller
         $perPage = (int)$request->query('per_page', 10);
         $projects = $query->paginate($perPage);
 
-        $items = collect($projects->items())->map(function (BrandChat $chat) {
-            return [
-                'id' => $chat->id,
-                'parent_id' => $chat->parent_id,
-                'topic' => $chat->topic,
-                'language' => $chat->language,
-                'answers' => $chat->answers,
-                'response' => $chat->response,
-                'raw_response' => $chat->raw_response,
-                'created_at' => $chat->created_at,
-                'updated_at' => $chat->updated_at,
-                'device_token' => $chat->device_token ?? null,
-            ];
-        });
+        $items = collect($projects->items())->map(fn (BrandChat $chat) => $this->serializeProject($chat));
 
         return $this->response->statusOk([
             'projects' => $items,
@@ -50,6 +37,45 @@ class ProjectController extends Controller
                 'last_page' => $projects->lastPage(),
             ],
         ]);
+    }
+
+    /**
+     * Retrieve a single project (BrandChat) by ID for the authenticated user.
+     */
+    public function show(int|string $id): JsonResponse
+    {
+        $userId = auth()->id();
+        $project = BrandChat::where('user_id', $userId)->where('id', (int)$id)->first();
+        if (!$project) {
+            return $this->response->notFound(['message' => 'Project not found']);
+        }
+
+        return $this->response->statusOk([
+            'data' => [
+                'project' => $this->serializeProject($project),
+            ],
+        ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function serializeProject(BrandChat $chat): array
+    {
+        return [
+            'id' => $chat->id,
+            'project_id' => $chat->id,
+            'chat_id' => $chat->id,
+            'parent_id' => $chat->parent_id,
+            'topic' => $chat->topic,
+            'language' => $chat->language,
+            'answers' => $chat->answers,
+            'response' => $chat->response,
+            'raw_response' => $chat->raw_response,
+            'created_at' => $chat->created_at,
+            'updated_at' => $chat->updated_at,
+            'device_token' => $chat->device_token ?? null,
+        ];
     }
 }
 
