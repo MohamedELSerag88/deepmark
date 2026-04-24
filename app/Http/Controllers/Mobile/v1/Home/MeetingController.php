@@ -14,7 +14,7 @@ class MeetingController extends Controller {
 
 	public function index(): JsonResponse
 	{
-		$list = MeetingRequest::where('user_id', auth()->id())
+		$list = MeetingRequest::where('user_id', auth('api')->id())
 			->latest('id')
 			->get(['id','brand_chat_id','meeting_at','notes','status','created_at']);
 
@@ -27,7 +27,7 @@ class MeetingController extends Controller {
 	{
 		$brandChatId = (int)$request->input('brand_id');
 		$brand = BrandChat::where('id', $brandChatId)
-			->where('user_id', auth()->id())
+			->where('user_id', auth('api')->id())
 			->first();
 		if (!$brand) {
 			return $this->response->statusFail('Brand chat not found', 404);
@@ -46,7 +46,7 @@ class MeetingController extends Controller {
 		}
 
 		$meeting = MeetingRequest::create([
-			'user_id' => auth()->id(),
+			'user_id' => auth('api')->id(),
 			'brand_chat_id' => $brand->id,
 			'meeting_at' => $meetingAt,
 			'notes' => $request->input('notes'),

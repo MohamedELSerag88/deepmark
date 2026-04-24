@@ -12,6 +12,7 @@ class BrandNameFavorite extends Model
 	protected $fillable = [
 		'user_id',
 		'brand_chat_id',
+		'brand_name_suggestion_id',
 		'name',
 		'archetype',
 		'domains',
@@ -32,6 +33,11 @@ class BrandNameFavorite extends Model
 	public function brandChat()
 	{
 		return $this->belongsTo(BrandChat::class, 'brand_chat_id');
+	}
+
+	public function suggestion()
+	{
+		return $this->belongsTo(BrandNameSuggestion::class, 'brand_name_suggestion_id');
 	}
 }
 

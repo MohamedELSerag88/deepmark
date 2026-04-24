@@ -14,10 +14,8 @@ class SaveFavoriteNameRequest extends FormRequest
 	public function rules(): array
 	{
 		return [
-			'name' => 'required|string|max:100',
-			'archetype' => 'nullable|string|max:100',
-			'domains' => 'nullable|array',
-			'brand_chat_id' => 'nullable|integer|exists:brand_chats,id',
+			'project_id' => 'required|integer|exists:brand_chats,id',
+			'suggestion_id' => 'required|integer|exists:brand_name_suggestions,id',
 		];
 	}
 }

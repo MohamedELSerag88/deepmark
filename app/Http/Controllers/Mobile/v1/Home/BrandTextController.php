@@ -91,7 +91,7 @@ class BrandTextController extends Controller {
 
 		BrandChat::create([
 			'topic' => 'brand_text',
-			'user_id' => auth()->id(),
+			'user_id' => auth('api')->id(),
 			'language' => $language,
 			'answers' => $answers,
 			'response' => $ok ? $normalized : null,
@@ -114,7 +114,7 @@ class BrandTextController extends Controller {
 	{
 		$keyword = trim((string)request()->query('q', ''));
 
-		$query = BrandChat::where('user_id', auth()->id())
+		$query = BrandChat::where('user_id', auth('api')->id())
 			->where('topic', 'brand_text')
 			->latest('id');
 
@@ -196,7 +196,7 @@ class BrandTextController extends Controller {
 		$language = $request->input('language');
 
 		$parent = BrandChat::where('id', $chatId)
-			->where('user_id', auth()->id())
+			->where('user_id', auth('api')->id())
 			->first();
 		if (!$parent) {
 			return $this->response->statusFail('Chat not found', 404);
@@ -236,7 +236,7 @@ class BrandTextController extends Controller {
 		BrandChat::create([
 			'parent_id' => $parent->id,
 			'topic' => 'brand_text',
-			'user_id' => auth()->id(),
+			'user_id' => auth('api')->id(),
 			'language' => $effectiveLanguage,
 			'answers' => $parent->answers,
 			'response' => $ok ? $normalized : null,
@@ -350,7 +350,7 @@ class BrandTextController extends Controller {
 		$registrant = (array)$request->input('registrant');
 
 		$reservation = DomainReservation::create([
-			'user_id' => auth()->id(),
+			'user_id' => auth('api')->id(),
 			'domain' => $domain,
 			'years' => $years,
 			'registrant' => $registrant,

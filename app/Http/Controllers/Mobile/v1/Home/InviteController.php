@@ -13,7 +13,7 @@ class InviteController extends Controller
 {
 	public function index(): JsonResponse
 	{
-		$list = Invitation::where('user_id', auth()->id())
+		$list = Invitation::where('user_id', auth('api')->id())
 			->latest('id')
 			->limit(100)
 			->get(['id','email','status','accepted_at','created_at']);
@@ -33,7 +33,7 @@ class InviteController extends Controller
 			}
 			$token = Str::random(40);
 			$invite = Invitation::create([
-				'user_id' => auth()->id(),
+				'user_id' => auth('api')->id(),
 				'email' => $email,
 				'token' => $token,
 				'status' => 'pending',

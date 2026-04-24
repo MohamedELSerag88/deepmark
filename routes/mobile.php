@@ -61,6 +61,8 @@ Route::group([
          // User projects (BrandChat)
          Route::get('projects', 'Home\ProjectController@index');
          Route::get('projects/{id}', 'Home\ProjectController@show');
+         Route::get('projects/{id}/chat-history', 'Home\BrandChatMessageController@index');
+         Route::post('projects/{id}/chat-history', 'Home\BrandChatMessageController@store');
          Route::get('meetings', 'Home\MeetingController@index');
          Route::post('meetings', 'Home\MeetingController@store');
          Route::get('profile', 'Home\ProfileController@show');

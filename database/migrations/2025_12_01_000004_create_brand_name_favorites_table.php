@@ -12,11 +12,8 @@ return new class extends Migration
 			$table->id();
 			$table->foreignId('user_id')->constrained()->cascadeOnDelete();
 			$table->foreignId('brand_chat_id')->nullable()->constrained('brand_chats')->nullOnDelete();
-			$table->string('name');
-			$table->string('archetype')->nullable();
-			$table->json('domains')->nullable();
+			$table->foreignId('brand_name_suggestion_id')->nullable()->constrained('brand_name_suggestions')->nullOnDelete();
 			$table->timestamps();
-			$table->unique(['user_id', 'name']);
 		});
 	}
 

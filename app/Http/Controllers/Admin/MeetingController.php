@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\BrandNameSuggestion;
 use App\Models\MeetingRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -85,6 +86,14 @@ class MeetingController extends Controller
                     $first = $items[0];
                     if (!empty($first['name'])) {
                         return (string)$first['name'];
+                    }
+                }
+                if ($id) {
+                    $firstSuggestion = BrandNameSuggestion::where('brand_chat_id', $id)
+                        ->orderBy('suggestion_index')
+                        ->value('name');
+                    if ($firstSuggestion) {
+                        return (string)$firstSuggestion;
                     }
                 }
             } elseif ($topic === 'brand_text') {

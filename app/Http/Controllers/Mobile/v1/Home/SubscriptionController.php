@@ -15,7 +15,7 @@ class SubscriptionController extends Controller {
 	public function status(): JsonResponse
 	{
 		$sub = Subscription::with('plan')
-			->where('user_id', auth()->id())
+			->where('user_id', auth('api')->id())
 			->latest('id')
 			->first();
 		return $this->response->statusOk([
@@ -51,7 +51,7 @@ class SubscriptionController extends Controller {
 		$plan = Plan::find($request->input('plan_id'));
 		if ($plan->price_cents === 0) {
 			$sub = Subscription::create([
-				'user_id' => auth()->id(),
+				'user_id' => auth('api')->id(),
 				'plan_id' => $plan->id,
 				'status' => 'active',
 				'started_at' => now(),
@@ -73,7 +73,7 @@ class SubscriptionController extends Controller {
 		);
 
 		Subscription::create([
-			'user_id' => auth()->id(),
+			'user_id' => auth('api')->id(),
 			'plan_id' => $plan->id,
 			'status' => 'pending',
 			'stripe_session_id' => $session['id'],

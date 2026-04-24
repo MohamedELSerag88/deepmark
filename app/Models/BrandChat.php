@@ -32,6 +32,16 @@ class BrandChat extends Model
 	{
 		return $this->belongsTo(User::class);
 	}
+
+	public function messages()
+	{
+		return $this->hasMany(BrandChatMessage::class);
+	}
+
+	public function nameSuggestions()
+	{
+		return $this->hasMany(BrandNameSuggestion::class)->orderBy('suggestion_index');
+	}
 }
 
 
