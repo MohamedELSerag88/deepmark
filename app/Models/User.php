@@ -97,9 +97,10 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(Subscription::class, 'user_id', 'id');
     }
 
+
     public function favorites()
     {
-        return $this->belongsToMany(BrandChat::class, 'brand_name_favorites', 'user_id', 'brand_chat_id');
+        return $this->belongsToMany(BrandNameSuggestion::class, 'brand_name_favorites', 'user_id', 'brand_name_suggestion_id');
     }
 
     public static function updateOrCreateSocialUser($provider, $socialUser)
