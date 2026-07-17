@@ -1,0 +1,40 @@
+<?php
+
+namespace App\Http\Controllers\Mobile\v1\Marketing;
+
+use App\Http\Controllers\Controller;
+use App\Http\Resources\Mobile\Marketing\BrandNameSuggestionResource;
+use App\Models\BrandNameSuggestion;
+use Illuminate\Http\JsonResponse;
+
+class BrandNameSuggestionController extends Controller
+{
+    public function index(): JsonResponse
+    {
+        $suggestions = BrandNameSuggestion::query()
+            ->forMarketing()
+            ->latest()
+            ->limit(24)
+            ->get();
+
+        return $this->response->statusOk([
+            'data' => BrandNameSuggestionResource::collection($suggestions),
+        ]);
+    }
+
+    public function show($id): JsonResponse
+    {
+        $suggestion = BrandNameSuggestion::query()
+            ->where('id', $id)
+            ->forMarketing()
+            ->first();
+
+        if (!$suggestion) {
+            return $this->response->notFound(['message' => 'Project not found'], 404);
+        }
+
+        return $this->response->statusOk([
+            'data' => new BrandNameSuggestionResource($suggestion),
+        ]);
+    }
+}

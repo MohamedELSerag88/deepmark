@@ -37,6 +37,19 @@ Route::group([
     Route::post('social-login', 'Auth\SocialLoginController@login');
     Route::get('questions', 'Home\QuestionController@index');
 
+    // Public marketing CMS (one controller per model)
+    Route::prefix('marketing')->namespace('Marketing')->group(function () {
+        Route::get('home', 'HomeController@index');
+        Route::get('settings', 'SiteSettingController@show');
+        Route::get('projects', 'BrandNameSuggestionController@index');
+        Route::get('projects/{id}', 'BrandNameSuggestionController@show');
+        Route::get('blogs', 'BlogPostController@index');
+        Route::get('blogs/{slug}', 'BlogPostController@show');
+        Route::get('faqs', 'FaqController@index');
+        Route::get('pricing', 'PricingPackageController@index');
+        Route::post('contact', 'ContactSubmissionController@store');
+    });
+
     Route::post('brand-names', 'Home\BrandNameController@generate');
     Route::group([
         'middleware' => ['auth:api']
@@ -104,15 +117,49 @@ Route::group([
         Route::get('questions/{id}', 'QuestionController@show');
         Route::put('questions/{id}', 'QuestionController@update');
         Route::delete('questions/{id}', 'QuestionController@destroy');
-        // plans CRUD
-        Route::get('plans', 'PlanController@index');
-        Route::post('plans', 'PlanController@store');
-        Route::get('plans/{id}', 'PlanController@show');
-        Route::put('plans/{id}', 'PlanController@update');
-        Route::delete('plans/{id}', 'PlanController@destroy');
         // meetings admin
         Route::get('meetings', 'MeetingController@index');
         Route::put('meetings/{id}', 'MeetingController@update');
+
+        // marketing CMS admin
+        Route::prefix('marketing')->namespace('Marketing')->group(function () {
+            Route::get('settings', 'SiteSettingController@show');
+            Route::put('settings', 'SiteSettingController@update');
+
+            Route::get('home-sections', 'HomeSectionController@index');
+            Route::post('home-sections', 'HomeSectionController@store');
+            Route::get('home-sections/{id}', 'HomeSectionController@show');
+            Route::put('home-sections/{id}', 'HomeSectionController@update');
+            Route::delete('home-sections/{id}', 'HomeSectionController@destroy');
+
+            // Portfolio projects = BrandNameSuggestion marketing fields
+            Route::get('projects', 'BrandNameSuggestionController@index');
+            Route::get('projects/{id}', 'BrandNameSuggestionController@show');
+            Route::put('projects/{id}', 'BrandNameSuggestionController@update');
+
+            Route::get('blogs', 'BlogPostController@index');
+            Route::post('blogs', 'BlogPostController@store');
+            Route::get('blogs/{id}', 'BlogPostController@show');
+            Route::put('blogs/{id}', 'BlogPostController@update');
+            Route::delete('blogs/{id}', 'BlogPostController@destroy');
+
+            Route::get('faqs', 'FaqController@index');
+            Route::post('faqs', 'FaqController@store');
+            Route::get('faqs/{id}', 'FaqController@show');
+            Route::put('faqs/{id}', 'FaqController@update');
+            Route::delete('faqs/{id}', 'FaqController@destroy');
+
+            Route::get('pricing', 'PricingPackageController@index');
+            Route::post('pricing', 'PricingPackageController@store');
+            Route::get('pricing/{id}', 'PricingPackageController@show');
+            Route::put('pricing/{id}', 'PricingPackageController@update');
+            Route::delete('pricing/{id}', 'PricingPackageController@destroy');
+
+            Route::get('contact-submissions', 'ContactSubmissionController@index');
+            Route::get('contact-submissions/{id}', 'ContactSubmissionController@show');
+            Route::put('contact-submissions/{id}', 'ContactSubmissionController@update');
+            Route::delete('contact-submissions/{id}', 'ContactSubmissionController@destroy');
+        });
     });
 });
 
