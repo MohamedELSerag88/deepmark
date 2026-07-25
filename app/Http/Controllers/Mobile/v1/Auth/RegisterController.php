@@ -5,28 +5,23 @@ namespace App\Http\Controllers\Mobile\v1\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Mobile\RegisterRequest;
 use App\Http\Resources\Mobile\LoginResource;
-use App\Models\User;
+use App\Services\Auth\AuthService;
 
-class RegisterController extends Controller {
+class RegisterController extends Controller
+{
+	public function __construct(
+		private readonly AuthService $authService,
+	) {
+		parent::__construct();
+	}
 
+	public function register(RegisterRequest $request)
+	{
+		$result = $this->authService->register($request->validated());
 
-    public function register(RegisterRequest $request){
-        $data = $request->validated(); // name, email, phone, password
-        $fullName = trim($data['name']);
-        $nameParts = preg_split('/\s+/', $fullName, 2);
-        $firstName = $nameParts[0] ?? null;
-        $lastName = $nameParts[1] ?? null;
-
-        $user = User::create([
-            'fname' => $firstName,
-            'lname' => $lastName,
-            'email' => $data['email'],
-            'phone' => $data['phone'],
-            'password' => $data['password'], // will be hashed by model cast
-        ]);
-        $user->token = auth('api')->login($user);
-
-        return $this->response->statusOk(["data" => new LoginResource($user),"message" => trans('messages.user_created_successfully')]);
-    }
-
+		return $this->statusOk([
+			'data' => new LoginResource($result['user']),
+			'message' => trans('messages.user_created_successfully'),
+		]);
+	}
 }

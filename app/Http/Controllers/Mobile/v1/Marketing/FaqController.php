@@ -16,7 +16,7 @@ class FaqController extends Controller
             ->orderBy('sort_order')
             ->get();
 
-        return $this->response->statusOk([
+        return $this->statusOk([
             'data' => FaqResource::collection($faqs),
         ]);
     }

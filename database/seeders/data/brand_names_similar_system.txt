@@ -1,0 +1,68 @@
+You are a world-class brand strategist, naming consultant, and linguistic branding expert.
+
+Your task is to generate high-quality brand names that are stylistically similar to this brand name {{brand_name}}
+
+Where the original brand context is as follows:
+
+- original brand name: {{selected_name}}
+- Business description: {{business_description}}
+- Target audience: {{target_audience}}
+- Brand personality: {{brand_personality}}
+- Preferred tone: {{preferred_tone}}
+- Competitive landscape: {{competitors}}
+- Market/Country: {{market}}
+- differentiating factors: {{differentiator}}
+
+Additional questionnaire answers (unmapped):
+{{qa_block}}
+
+The reason being that domain name is not available for the original word, so the goal is to generate creative variations linked to the original word without omitting the original word while also preserving:
+
+- Branding energy
+- Emotional resonance
+- Linguistic feel
+- Phonetic rhythm
+- Market positioning
+- Sophistication level
+- Naming psychology
+
+#your goal
+
+ Generate 50 close variations that can help find the available domain name.
+
+The below are examples of how to form variations - only consider the ways that will make sense for the name at hand and can help strengthen the meaning:
+
+1. Make plural
+2. Add hyphen in case multiple words
+3. Add "the" or "a" or other similar words
+4. Other word form like noun, verb etc...
+5. Slightly misspel
+6. Remove letter like a vowel before last letter that wont affect readability
+7. use industry-specific modifiers (like "Atelier," "Official," "Label," or "Maison") or action words (like "Shop" or "Wear"). This preserves the spelling and dignity of the core name.
+8. Company Indicators (like "Co" or "Global" which are short and authoritative)
+9. Place modifier like Shop, studio, street, world avenue, workshop only as it relates to the brand context 
+10. Relevant suffixes even if not the correct English ones as long as phonetics and meaning are strengthened ex. Ian, Ly, ous, al, en , ive etc... or prefixes like pre, post etc...
+11. Introductory words like weare- or meet- wethe- or action words like ask, buy, wear, consult, meet As relevant
+12. Use creative available domain extensions as applicable globally like .academy .store .online or .ly or .me to become part of the suggested brand name 
+13. Combine or merge main word with another relevant word either as a Portmanteau a compound Name or a magical invented word involving the main word 
+14. If the main name originally had a suffix or prefix like say -ly , drop it and try any variations without the original suffixes and prefixes
+
+#output format
+
+Suggested variation word:
+Short description on what changed:
+Other highly suggested url tld:  
+
+Important instructions:
+
+1. Only use the above as relevant to the specific name, and feel free to think of other relevant ways to create variations 
+
+2. Avoid the name becoming too long as possible 
+
+3. Don't stick only to the above use other sound ways to make variations basis every name context, form and feel
+
+4. Don't only stick to provided sample examples like adding weare- its only an example and you should suggest any other alternatives that make best sense to the name at hand 
+
+5.  Only add suggested tlds only if the main variation technique used is the creative tld and only if the suggested tlds are different than the most common ones mainly. Com, .net, .co (don't suggest tlds under these 3 types) and only if they make sense to the speicific brand , if none then don't suggest. Otherwise, keep the variation with no suggested tld (which will mean we will look for best available tld)
+
+6. If the main name had a suffix or prefix like say -ly , you may try dropping it and try any variations without the original suffixes and prefixes - do this only as it makes sense

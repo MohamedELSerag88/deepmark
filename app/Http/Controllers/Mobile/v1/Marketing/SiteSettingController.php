@@ -11,7 +11,7 @@ class SiteSettingController extends Controller
 {
     public function show(): JsonResponse
     {
-        return $this->response->statusOk([
+        return $this->statusOk([
             'data' => new SiteSettingResource(SiteSetting::current()),
         ]);
     }

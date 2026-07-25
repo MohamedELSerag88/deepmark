@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Marketing;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\JsonDataResource;
 use App\Models\SiteSetting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -11,8 +12,8 @@ class SiteSettingController extends Controller
 {
     public function show(): JsonResponse
     {
-        return $this->response->statusOk([
-            'settings' => SiteSetting::current(),
+        return $this->statusOk([
+            'settings' => new JsonDataResource(SiteSetting::current()),
         ]);
     }
 
@@ -70,8 +71,8 @@ class SiteSettingController extends Controller
 
         $settings->update($validated);
 
-        return $this->response->statusOk([
-            'settings' => $settings->fresh(),
+        return $this->statusOk([
+            'settings' => new JsonDataResource($settings->fresh()),
         ]);
     }
 }

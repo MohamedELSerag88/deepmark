@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin\Marketing;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Mobile\Marketing\ContactSubmissionResource;
+use App\Http\Resources\Mobile\MessageResource;
 use App\Models\ContactSubmission;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,8 +18,8 @@ class ContactSubmissionController extends Controller
             ->latest()
             ->paginate($perPage);
 
-        return $this->response->statusOk([
-            'submissions' => $submissions->items(),
+        return $this->statusOk([
+            'submissions' => ContactSubmissionResource::collection(collect($submissions->items())),
             'pagination' => [
                 'current_page' => $submissions->currentPage(),
                 'per_page' => $submissions->perPage(),
@@ -31,16 +33,16 @@ class ContactSubmissionController extends Controller
     {
         $submission = ContactSubmission::find($id);
         if (!$submission) {
-            return $this->response->notFound(['message' => 'Submission not found'], 404);
+            return $this->notFound(['message' => 'Submission not found'], 404);
         }
-        return $this->response->statusOk(['submission' => $submission]);
+        return $this->statusOk(['submission' => new ContactSubmissionResource($submission)]);
     }
 
     public function update(Request $request, $id): JsonResponse
     {
         $submission = ContactSubmission::find($id);
         if (!$submission) {
-            return $this->response->notFound(['message' => 'Submission not found'], 404);
+            return $this->notFound(['message' => 'Submission not found'], 404);
         }
 
         $validated = $request->validate([
@@ -48,16 +50,16 @@ class ContactSubmissionController extends Controller
         ]);
 
         $submission->update($validated);
-        return $this->response->statusOk(['submission' => $submission->fresh()]);
+        return $this->statusOk(['submission' => new ContactSubmissionResource($submission->fresh())]);
     }
 
     public function destroy($id): JsonResponse
     {
         $submission = ContactSubmission::find($id);
         if (!$submission) {
-            return $this->response->notFound(['message' => 'Submission not found'], 404);
+            return $this->notFound(['message' => 'Submission not found'], 404);
         }
         $submission->delete();
-        return $this->response->statusOk(['message' => 'Deleted', 'id' => (int) $id]);
+        return $this->statusOk(new MessageResource(['message' => 'Deleted', 'id' => (int) $id]));
     }
 }

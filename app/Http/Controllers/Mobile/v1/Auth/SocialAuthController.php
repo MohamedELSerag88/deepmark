@@ -46,11 +46,11 @@ class SocialAuthController extends Controller
 
             // Create API token
             if (!$token = auth('api')->login($user)) {
-                return $this->response->statusFail(['message' => trans('messages.wrong_credentials')]);
+                return $this->statusFail(['message' => trans('messages.wrong_credentials')]);
             }
             $user->token = $token;
             $data = ['data' => new LoginResource($user), "message" => trans('messages.user_founded_successfully')];
-            return $this->response->statusOk($data);
+            return $this->statusOk($data);
 
         } catch (\Exception $e) {
             return response()->json([

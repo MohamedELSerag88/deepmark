@@ -22,6 +22,7 @@ class QuestionResource extends JsonResource
 			"question_en" => $this->question_en,
 			"question_ar" => $this->question_ar,
 			"question_type" => $this->question_type ?: 'text',
+			"prompt_key" => $this->prompt_key,
 			"answers" => $this->answers,
 			"description_en" => $this->description_en,
 			"description_ar" => $this->description_ar,

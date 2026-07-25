@@ -4,19 +4,21 @@ namespace App\Http\Controllers\Mobile\v1\Home;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Mobile\PlanResource;
-use App\Models\Plan;
+use App\Services\Billing\PlanService;
 use Illuminate\Http\JsonResponse;
 
-class PlanController extends Controller {
-
+class PlanController extends Controller
+{
+	public function __construct(
+		private readonly PlanService $planService,
+	) {
+		parent::__construct();
+	}
 
 	public function index(): JsonResponse
 	{
-		$plans = Plan::with('features')->orderBy('price_cents')->get();
-		return $this->response->statusOk([
-			'data' => PlanResource::collection($plans)
-		]);
+		return $this->okResource(
+			PlanResource::collection($this->planService->list())
+		);
 	}
 }
-
-

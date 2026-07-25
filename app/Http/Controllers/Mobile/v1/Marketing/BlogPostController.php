@@ -17,7 +17,7 @@ class BlogPostController extends Controller
             ->orderBy('sort_order')
             ->get();
 
-        return $this->response->statusOk([
+        return $this->statusOk([
             'data' => BlogPostResource::collection($blogs),
         ]);
     }
@@ -30,10 +30,10 @@ class BlogPostController extends Controller
             ->first();
 
         if (!$blog) {
-            return $this->response->notFound(['message' => 'Blog post not found'], 404);
+            return $this->notFound(['message' => 'Blog post not found'], 404);
         }
 
-        return $this->response->statusOk([
+        return $this->statusOk([
             'data' => new BlogPostResource($blog),
         ]);
     }

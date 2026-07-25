@@ -16,7 +16,7 @@ class PricingPackageController extends Controller
             ->orderBy('sort_order')
             ->get();
 
-        return $this->response->statusOk([
+        return $this->statusOk([
             'data' => PricingPackageResource::collection($packages),
         ]);
     }

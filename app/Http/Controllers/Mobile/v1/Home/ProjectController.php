@@ -3,178 +3,83 @@
 namespace App\Http\Controllers\Mobile\v1\Home;
 
 use App\Http\Controllers\Controller;
-use App\Models\BrandChat;
-use App\Models\BrandNameFavorite;
-use App\Models\BrandNameSuggestion;
-use App\Models\Question;
+use App\Http\Resources\Mobile\ProjectResource;
+use App\Services\Brand\ProjectService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {
-    /**
-     * List all projects (BrandChat) for the authenticated user.
-     * Optional query params: page, per_page, topic (brand_names|brand_text)
-     */
-    public function index(Request $request): JsonResponse
-    {
-        $userId = auth('api')->id();
+	public function __construct(
+		private readonly ProjectService $projectService,
+	) {
+		parent::__construct();
+	}
 
-        $query = BrandChat::where('user_id', $userId)->latest('id');
+	public function index(Request $request): JsonResponse
+	{
+		$result = $this->projectService->index(
+			auth('api')->id(),
+			$request->query('topic'),
+			(int) $request->query('per_page', 10)
+		);
 
-        if ($topic = $request->query('topic')) {
-            $query->where('topic', $topic);
-        }
+		return $this->statusOk([
+			'projects' => ProjectResource::collection($result['projects']),
+			'pagination' => $result['pagination'],
+		]);
+	}
 
-        $perPage = (int)$request->query('per_page', 10);
-        $projects = $query->paginate($perPage);
+	public function show(int|string $id): JsonResponse
+	{
+		$project = $this->projectService->show(
+			(int) $id,
+			auth('api')->id(),
+			[
+				'name' => (string) request()->query('name', ''),
+				'archetype' => (string) request()->query('archetype', ''),
+				'name_type' => (string) request()->query('name_type', ''),
+				'linguistic_style' => (string) request()->query('linguistic_style', ''),
+				'generation_technique' => (string) request()->query('generation_technique', ''),
+				'length' => (string) request()->query('length', ''),
+			]
+		);
 
-        $items = collect($projects->items())->map(fn (BrandChat $chat) => $this->serializeProject($chat));
+		if ($project === null) {
+			return $this->notFound(['message' => 'Project not found']);
+		}
 
-        return $this->response->statusOk([
-            'projects' => $items,
-            'pagination' => [
-                'current_page' => $projects->currentPage(),
-                'per_page' => $projects->perPage(),
-                'total' => $projects->total(),
-                'last_page' => $projects->lastPage(),
-            ],
-        ]);
-    }
+		return $this->statusOk([
+			'data' => [
+				'project' => new ProjectResource($project),
+			],
+		]);
+	}
 
-    /**
-     * Retrieve a single project (BrandChat) by ID for the authenticated user.
-     */
-    public function show(int|string $id): JsonResponse
-    {
-        $userId = auth('api')->id();
-        $project = BrandChat::where('user_id', $userId)->where('id', (int)$id)->first();
-        if (!$project) {
-            return $this->response->notFound(['message' => 'Project not found']);
-        }
+	public function selectBrandName(Request $request, int|string $id): JsonResponse
+	{
+		$validated = $request->validate([
+			'name' => 'required|string|max:255',
+		]);
 
-        $filters = [
-            'name' => (string)request()->query('name', ''),
-            'archetype' => (string)request()->query('archetype', ''),
-        ];
+		$result = $this->projectService->selectBrandName(
+			(int) $id,
+			(string) $validated['name'],
+			auth('api')->id()
+		);
 
-        return $this->response->statusOk([
-            'data' => [
-                'project' => $this->serializeProject($project, $filters),
-            ],
-        ]);
-    }
+		if ($result === null) {
+			return $this->notFound(['message' => 'Project not found']);
+		}
+		if (isset($result['error']) && $result['error'] === 'suggestion_not_found') {
+			return $this->statusFail(['message' => 'Brand name suggestion not found for this project'], 422);
+		}
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function serializeProject(BrandChat $chat, array $filters = []): array
-    {
-        $response = $chat->response;
-        $archetypes = [];
-        $answers = $this->formatAnswers($chat->answers);
-        $favoritedSuggestionIds = BrandNameFavorite::where('user_id', auth('api')->id())
-            ->where('brand_chat_id', $chat->id)
-            ->pluck('brand_name_suggestion_id')
-            ->filter(fn ($id) => $id !== null)
-            ->map(fn ($id) => (int)$id)
-            ->all();
-        $favoritedLookup = array_fill_keys($favoritedSuggestionIds, true);
-
-        $allSuggestions = BrandNameSuggestion::where('brand_chat_id', $chat->id)
-            ->orderBy('suggestion_index')
-            ->get();
-
-        $archetypes = $allSuggestions
-            ->pluck('archetype')
-            ->filter(fn ($value) => is_string($value) && trim($value) !== '')
-            ->unique()
-            ->values()
-            ->all();
-
-        $suggestionsQuery = BrandNameSuggestion::where('brand_chat_id', $chat->id);
-        if (!empty($filters['name'])) {
-            $suggestionsQuery->where('name', 'like', '%' . $filters['name'] . '%');
-        }
-        if (!empty($filters['archetype'])) {
-            $suggestionsQuery->where('archetype', 'like', '%' . $filters['archetype'] . '%');
-        }
-
-        $items = $suggestionsQuery
-            ->orderBy('suggestion_index')
-            ->get()
-            ->map(fn (BrandNameSuggestion $s) => [
-                'suggestion_index' => $s->suggestion_index,
-                'id' => $s->id,
-                'project_id' => $chat->id,
-                'name' => $s->name,
-                'archetype' => $s->archetype,
-                'domains' => $s->domains,
-                'liked' => isset($favoritedLookup[(int)$s->id]),
-            ])
-            ->values();
-
-        return [
-            'id' => $chat->id,
-            'project_id' => $chat->id,
-            'chat_id' => $chat->id,
-            'parent_id' => $chat->parent_id,
-            'topic' => $chat->topic,
-            'language' => $chat->language,
-            'answers' => $answers,
-            'archetype' => $archetypes,
-            'items' => $items,
-            'raw_response' => $chat->raw_response,
-            'created_at' => $chat->created_at,
-            'device_token' => $chat->device_token ?? null,
-        ];
-    }
-
-    /**
-     * Convert stored answers from [{question_id, value}] to [{question, answer}].
-     *
-     * @param mixed $answers
-     * @return array<int, array<string, mixed>>
-     */
-    private function formatAnswers($answers): array
-    {
-        if (!is_array($answers)) {
-            return [];
-        }
-
-        $questionIds = collect($answers)
-            ->pluck('question_id')
-            ->filter(fn ($id) => is_numeric($id))
-            ->map(fn ($id) => (int)$id)
-            ->unique()
-            ->values()
-            ->all();
-
-        $questions = Question::whereIn('id', $questionIds)
-            ->get()
-            ->keyBy('id');
-
-        return collect($answers)->map(function ($item) use ($questions) {
-            if (!is_array($item)) {
-                return null;
-            }
-
-            $questionId = isset($item['question_id']) ? (int)$item['question_id'] : null;
-            $question = $questionId ? $questions->get($questionId) : null;
-
-            return [
-                'question' => $question ? [
-                    'id' => $question->id,
-                    'question_en' => $question->question_en,
-                    'question_ar' => $question->question_ar,
-                    'question_type' => $question->question_type,
-                ] : null,
-                'answer' => $item['value'] ?? null,
-            ];
-        })
-            ->filter()
-            ->values()
-            ->all();
-    }
+		return $this->statusOk([
+			'data' => [
+				'project' => new ProjectResource($result),
+			],
+			'message' => 'Selected brand name updated.',
+		]);
+	}
 }
-

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Marketing;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\JsonDataResource;
 use App\Models\BrandNameSuggestion;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,23 +20,23 @@ class BrandNameSuggestionController extends Controller
 
         $suggestions = $query->limit(200)->get();
 
-        return $this->response->statusOk(['projects' => $suggestions]);
+        return $this->statusOk(['projects' => JsonDataResource::collection($suggestions)]);
     }
 
     public function show($id): JsonResponse
     {
         $suggestion = BrandNameSuggestion::find($id);
         if (!$suggestion) {
-            return $this->response->notFound(['message' => 'Project not found'], 404);
+            return $this->notFound(['message' => 'Project not found'], 404);
         }
-        return $this->response->statusOk(['project' => $suggestion]);
+        return $this->statusOk(['project' => new JsonDataResource($suggestion)]);
     }
 
     public function update(Request $request, $id): JsonResponse
     {
         $suggestion = BrandNameSuggestion::find($id);
         if (!$suggestion) {
-            return $this->response->notFound(['message' => 'Project not found'], 404);
+            return $this->notFound(['message' => 'Project not found'], 404);
         }
 
         $validated = $request->validate([
@@ -57,6 +58,6 @@ class BrandNameSuggestionController extends Controller
 
         $suggestion->update($validated);
 
-        return $this->response->statusOk(['project' => $suggestion->fresh()]);
+        return $this->statusOk(['project' => new JsonDataResource($suggestion->fresh())]);
     }
 }

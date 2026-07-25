@@ -6,17 +6,16 @@ use Stripe\StripeClient;
 
 class StripeService
 {
-	private StripeClient $client;
+	private ?StripeClient $client = null;
 	private string $currency;
 	private string $successUrl;
 	private string $cancelUrl;
 
 	public function __construct()
 	{
-		$this->client = new StripeClient((string)config('stripe.secret'));
-		$this->currency = (string)config('stripe.currency', 'usd');
-		$this->successUrl = (string)config('stripe.success_url');
-		$this->cancelUrl = (string)config('stripe.cancel_url');
+		$this->currency = (string) config('stripe.currency', 'usd');
+		$this->successUrl = (string) config('stripe.success_url');
+		$this->cancelUrl = (string) config('stripe.cancel_url');
 	}
 
 	public function createCheckoutSession(int $amountCents, string $name, ?string $priceId = null, ?string $customerEmail = null): array
@@ -48,12 +47,20 @@ class StripeService
 			]];
 		}
 
-		$session = $this->client->checkout->sessions->create($params);
+		$session = $this->client()->checkout->sessions->create($params);
+
 		return [
 			'id' => $session->id,
 			'url' => $session->url,
 		];
 	}
+
+	private function client(): StripeClient
+	{
+		if ($this->client === null) {
+			$this->client = new StripeClient((string) config('stripe.secret'));
+		}
+
+		return $this->client;
+	}
 }
-
-

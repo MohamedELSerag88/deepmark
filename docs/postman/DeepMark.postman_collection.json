@@ -1,25 +1,269 @@
 {
 	"info": {
-		"name": "DeepMark Mobile API",
+		"name": "DeepMark API",
 		"_postman_id": "3d7c2d3b-9fd0-48c4-9a3b-5e7c0d7c0d3a",
-		"description": "Postman collection for DeepMark Mobile API",
+		"description": "Full Postman collection extracted from DeepMark (routes/mobile.php).\n\nBase path: {{base_url}}/api\nMobile auth: Authorization: Bearer {{token}}\nAdmin auth: Authorization: Bearer {{admin_token}}\n\nGenerated from controllers + validation rules.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
+			"name": "Social Auth",
+			"item": [
+				{
+					"name": "Redirect to Provider",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/google/redirect",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"google",
+								"redirect"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"redirect_url\": \"https://accounts.google.com/o/oauth2/...\"\n}"
+						},
+						{
+							"name": "Invalid provider",
+							"status": "400",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"message\": \"Invalid provider\"\n}"
+						}
+					]
+				},
+				{
+					"name": "OAuth Callback",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/google/callback",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"google",
+								"callback"
+							]
+						},
+						"description": "OAuth callback (browser redirect). Returns LoginResource."
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"fname\": \"John\",\n    \"lname\": \"Doe\",\n    \"email\": \"user@example.com\",\n    \"phone\": \"201001234567\",\n    \"image\": null,\n    \"token\": \"<jwt>\"\n  },\n  \"message\": \"user founded successfully\"\n}"
+						},
+						{
+							"name": "Failed",
+							"status": "401",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"error\",\n  \"message\": \"Authentication failed: ...\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Exchange Social Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/google/token",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"google",
+								"token"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"access_token\": \"<provider_access_token>\"\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"success\",\n  \"user\": {\n    \"id\": 1,\n    \"email\": \"user@example.com\"\n  },\n  \"token\": \"<plainTextToken>\",\n  \"token_type\": \"Bearer\"\n}"
+						},
+						{
+							"name": "Failed",
+							"status": "401",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"error\",\n  \"message\": \"Authentication failed: ...\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
 			"name": "Auth",
 			"item": [
+				{
+					"name": "Login (phone/password)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mobile/v1/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"login"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"phone\": \"201001234567\",\n  \"password\": \"StrongPass123\"\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"fname\": \"John\",\n    \"lname\": \"Doe\",\n    \"email\": \"user@example.com\",\n    \"phone\": \"201001234567\",\n    \"image\": null,\n    \"token\": \"<jwt>\"\n  },\n  \"message\": \"user founded successfully\"\n}"
+						},
+						{
+							"name": "Wrong credentials",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"FAILED\",\n  \"message\": \"wrong credentials\"\n}"
+						}
+					]
+				},
 				{
 					"name": "Send OTP (email)",
 					"request": {
 						"method": "POST",
 						"header": [
-							{ "key": "Content-Type", "value": "application/json" }
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
 						],
 						"url": {
-							"raw": "{{base_url}}/mobile/v1/send-otp",
-							"host": ["{{base_url}}"],
-							"path": ["mobile","v1","send-otp"]
+							"raw": "{{base_url}}/api/mobile/v1/send-otp",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"send-otp"
+							]
 						},
 						"body": {
 							"mode": "raw",
@@ -29,19 +273,29 @@
 					"response": [
 						{
 							"name": "Success",
-							"originalRequest": { "method": "POST" },
 							"status": "OK",
 							"code": 200,
 							"_postman_previewlanguage": "json",
-							"header": [],
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
 							"body": "{\n  \"status\": \"OK\",\n  \"message\": \"SMS Sent with otp\"\n}"
 						},
 						{
-							"name": "Error",
-							"originalRequest": { "method": "POST" },
-							"status": "FAILED",
-							"code": 200,
-							"body": "{\n  \"status\": \"FAILED\",\n  \"message\": \"Validation error\"\n}"
+							"name": "Validation error",
+							"status": "422",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"FAILED\",\n  \"message\": \"The email field is required.\",\n  \"errors\": {\n    \"email\": [\n      \"The email field is required.\"\n    ]\n  }\n}"
 						}
 					]
 				},
@@ -50,16 +304,31 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{ "key": "Content-Type", "value": "application/json" }
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
 						],
 						"url": {
-							"raw": "{{base_url}}/mobile/v1/check-otp",
-							"host": ["{{base_url}}"],
-							"path": ["mobile","v1","check-otp"]
+							"raw": "{{base_url}}/api/mobile/v1/check-otp",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"check-otp"
+							]
 						},
+						"description": "On success, copy data.token into {{token}}.",
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"user@example.com\",\n  \"otp_code\": \"123456\"\n}"
+							"raw": "{\n  \"email\": \"user@example.com\",\n  \"otp_code\": \"123456\",\n  \"device_token\": \"optional-guest-device-token\"\n}"
 						}
 					},
 					"response": [
@@ -67,13 +336,134 @@
 							"name": "Success",
 							"status": "OK",
 							"code": 200,
-							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"fname\": \"John\",\n    \"lname\": \"Doe\",\n    \"email\": \"user@example.com\",\n    \"phone\": \"201001234567\",\n    \"token\": \"<jwt>\"\n  },\n  \"message\": \"logged in successfully.\"\n}"
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"fname\": \"John\",\n    \"lname\": \"Doe\",\n    \"email\": \"user@example.com\",\n    \"phone\": \"201001234567\",\n    \"image\": null,\n    \"token\": \"<jwt>\"\n  },\n  \"message\": \"logged in successfully.\"\n}"
 						},
 						{
 							"name": "Wrong OTP",
-							"status": "FAILED",
+							"status": "OK",
 							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
 							"body": "{\n  \"status\": \"FAILED\",\n  \"message\": \"Wrong Otp token!\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Forget Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mobile/v1/forget-password",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"forget-password"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"phone\": \"201001234567\"\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"message\": \"SMS Sent with otp\",\n  \"token\": 1234\n}"
+						}
+					]
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mobile/v1/reset-password",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"reset-password"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"reset_password\": \"1234\",\n  \"new_password\": \"StrongPass123\",\n  \"new_password_confirmation\": \"StrongPass123\"\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"fname\": \"John\",\n    \"lname\": \"Doe\",\n    \"email\": \"user@example.com\",\n    \"phone\": \"201001234567\",\n    \"image\": null,\n    \"token\": \"<jwt>\"\n  },\n  \"message\": \"password updated successfully\"\n}"
+						},
+						{
+							"name": "Wrong code",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"FAILED\",\n  \"message\": \"wrong reset password code\"\n}"
 						}
 					]
 				},
@@ -82,12 +472,26 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{ "key": "Content-Type", "value": "application/json" }
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
 						],
 						"url": {
-							"raw": "{{base_url}}/mobile/v1/register",
-							"host": ["{{base_url}}"],
-							"path": ["mobile","v1","register"]
+							"raw": "{{base_url}}/api/mobile/v1/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"register"
+							]
 						},
 						"body": {
 							"mode": "raw",
@@ -99,13 +503,27 @@
 							"name": "Success",
 							"status": "OK",
 							"code": 200,
-							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"fname\": \"John\",\n    \"lname\": \"Doe\",\n    \"email\": \"john@example.com\",\n    \"phone\": \"201001234567\",\n    \"token\": \"<jwt>\"\n  },\n  \"message\": \"user created successfully\"\n}"
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"fname\": \"John\",\n    \"lname\": \"Doe\",\n    \"email\": \"john@example.com\",\n    \"phone\": \"201001234567\",\n    \"image\": null,\n    \"token\": \"<jwt>\"\n  },\n  \"message\": \"user created successfully\"\n}"
 						},
 						{
 							"name": "Validation error",
-							"status": "FAILED",
+							"status": "422",
 							"code": 422,
-							"body": "{\n  \"status\": \"FAILED\",\n  \"message\": \"The email has already been taken.\"\n}"
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"FAILED\",\n  \"message\": \"The email has already been taken.\",\n  \"errors\": {\n    \"email\": [\n      \"The email has already been taken.\"\n    ]\n  }\n}"
 						}
 					]
 				},
@@ -114,16 +532,30 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{ "key": "Content-Type", "value": "application/json" }
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
 						],
 						"url": {
-							"raw": "{{base_url}}/mobile/v1/social-login",
-							"host": ["{{base_url}}"],
-							"path": ["mobile","v1","social-login"]
+							"raw": "{{base_url}}/api/mobile/v1/social-login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"social-login"
+							]
 						},
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"provider\": \"google\",\n  \"token\": \"<id_token>\",\n  \"fname\": \"Olivia\",\n  \"lname\": \"Ham\"\n}"
+							"raw": "{\n  \"provider\": \"google\",\n  \"token\": \"<id_token>\",\n  \"email\": \"olivia@example.com\",\n  \"fname\": \"Olivia\",\n  \"lname\": \"Ham\"\n}"
 						}
 					},
 					"response": [
@@ -131,13 +563,428 @@
 							"name": "Success",
 							"status": "OK",
 							"code": 200,
-							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\"fname\": \"Olivia\", \"lname\": \"Ham\", \"email\": \"olivia@example.com\", \"phone\": null, \"token\": \"<jwt>\"},\n  \"message\": \"logged in successfully.\"\n}"
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"fname\": \"Olivia\",\n    \"lname\": \"Ham\",\n    \"email\": \"olivia@example.com\",\n    \"phone\": null,\n    \"image\": null,\n    \"token\": \"<jwt>\"\n  },\n  \"message\": \"logged in successfully.\"\n}"
 						},
 						{
 							"name": "Invalid token",
-							"status": "FAILED",
+							"status": "401",
 							"code": 401,
-							"body": "{ \"status\": \"FAILED\", \"message\": \"Invalid social token\" }"
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"FAILED\",\n  \"message\": \"Invalid social token\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Marketing (Public)",
+			"item": [
+				{
+					"name": "Home (aggregated)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mobile/v1/marketing/home",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"marketing",
+								"home"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"settings\": {\n      \"brand_name\": \"DeepMark\",\n      \"logo_url\": \"https://example.com/logo.png\",\n      \"login_cta_label\": \"Log in\",\n      \"login_cta_url\": \"/login\",\n      \"start_cta_label\": \"Start branding\",\n      \"start_cta_url\": \"/start\",\n      \"footer_tagline\": \"Brand with confidence\",\n      \"footer_copyright\": \"© DeepMark\",\n      \"newsletter_placeholder\": \"Your email\",\n      \"social_links\": {\n        \"twitter\": \"https://x.com/deepmark\"\n      },\n      \"contact_email\": \"hello@deepmark.com\",\n      \"blogs_title\": \"Insights\"\n    },\n    \"sections\": {\n      \"hero\": {\n        \"key\": \"hero\",\n        \"content\": {\n          \"headline\": \"Build your brand\"\n        },\n        \"sort_order\": 0\n      }\n    },\n    \"projects\": [\n      {\n        \"id\": 1,\n        \"slug\": \"zephyra\",\n        \"name\": \"Zephyra\",\n        \"title\": \"Zephyra\",\n        \"year\": 2025,\n        \"description\": \"A calm productivity brand\",\n        \"archetype\": \"The Sage\",\n        \"domains\": {\n          \"primary\": {\n            \"tld\": \".com\",\n            \"available\": true,\n            \"domain\": \"zephyra.com\"\n          },\n          \"list\": [\n            {\n              \"domain\": \"zephyra.com\",\n              \"available\": true\n            },\n            {\n              \"domain\": \"zephyra.io\",\n              \"available\": false\n            },\n            {\n              \"domain\": \"zephyra.ai\",\n              \"available\": true\n            }\n          ],\n          \"more_count\": 2\n        },\n        \"liked\": false,\n        \"image\": \"https://example.com/project.jpg\",\n        \"image_alt\": \"Zephyra\",\n        \"author\": {\n          \"name\": \"Team\",\n          \"position\": \"Studio\",\n          \"avatar\": null\n        },\n        \"detail\": {\n          \"lead\": \"...\",\n          \"images\": [],\n          \"content\": [],\n          \"deliverables\": []\n        }\n      }\n    ],\n    \"faqs\": [\n      {\n        \"id\": 1,\n        \"question\": \"What is DeepMark?\",\n        \"answer\": \"...\",\n        \"sort_order\": 0\n      }\n    ],\n    \"pricing\": [\n      {\n        \"id\": 1,\n        \"slug\": \"starter\",\n        \"name\": \"Starter\",\n        \"price_display\": \"Free\",\n        \"currency_symbol\": \"$\",\n        \"description\": \"For individuals\",\n        \"features\": [\n          \"3 generations / month\"\n        ],\n        \"badge\": null,\n        \"is_recommended\": false,\n        \"cta_label\": \"Start\",\n        \"cta_url\": \"/start\",\n        \"sort_order\": 0\n      }\n    ]\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Site Settings",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mobile/v1/marketing/settings",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"marketing",
+								"settings"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"brand_name\": \"DeepMark\",\n    \"logo_url\": \"https://example.com/logo.png\",\n    \"login_cta_label\": \"Log in\",\n    \"login_cta_url\": \"/login\",\n    \"start_cta_label\": \"Start branding\",\n    \"start_cta_url\": \"/start\",\n    \"footer_tagline\": \"Brand with confidence\",\n    \"footer_copyright\": \"© DeepMark\",\n    \"newsletter_placeholder\": \"Your email\",\n    \"social_links\": {\n      \"twitter\": \"https://x.com/deepmark\"\n    },\n    \"contact_email\": \"hello@deepmark.com\",\n    \"blogs_title\": \"Insights\"\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "List Portfolio Projects",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mobile/v1/marketing/projects",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"marketing",
+								"projects"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": [\n    {\n      \"id\": 1,\n      \"slug\": \"zephyra\",\n      \"name\": \"Zephyra\",\n      \"title\": \"Zephyra\",\n      \"year\": 2025,\n      \"description\": \"A calm productivity brand\",\n      \"archetype\": \"The Sage\",\n      \"domains\": {\n        \"primary\": {\n          \"tld\": \".com\",\n          \"available\": true,\n          \"domain\": \"zephyra.com\"\n        },\n        \"list\": [\n          {\n            \"domain\": \"zephyra.com\",\n            \"available\": true\n          },\n          {\n            \"domain\": \"zephyra.io\",\n            \"available\": false\n          },\n          {\n            \"domain\": \"zephyra.ai\",\n            \"available\": true\n          }\n        ],\n        \"more_count\": 2\n      },\n      \"liked\": false,\n      \"image\": \"https://example.com/project.jpg\",\n      \"image_alt\": \"Zephyra\",\n      \"author\": {\n        \"name\": \"Team\",\n        \"position\": \"Studio\",\n        \"avatar\": null\n      },\n      \"detail\": {\n        \"lead\": \"...\",\n        \"images\": [],\n        \"content\": [],\n        \"deliverables\": []\n      }\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Show Portfolio Project",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mobile/v1/marketing/projects/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"marketing",
+								"projects",
+								"1"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"id\": 1,\n    \"slug\": \"zephyra\",\n    \"name\": \"Zephyra\",\n    \"title\": \"Zephyra\",\n    \"year\": 2025,\n    \"description\": \"A calm productivity brand\",\n    \"archetype\": \"The Sage\",\n    \"domains\": {\n      \"primary\": {\n        \"tld\": \".com\",\n        \"available\": true,\n        \"domain\": \"zephyra.com\"\n      },\n      \"list\": [\n        {\n          \"domain\": \"zephyra.com\",\n          \"available\": true\n        },\n        {\n          \"domain\": \"zephyra.io\",\n          \"available\": false\n        },\n        {\n          \"domain\": \"zephyra.ai\",\n          \"available\": true\n        }\n      ],\n      \"more_count\": 2\n    },\n    \"liked\": false,\n    \"image\": \"https://example.com/project.jpg\",\n    \"image_alt\": \"Zephyra\",\n    \"author\": {\n      \"name\": \"Team\",\n      \"position\": \"Studio\",\n      \"avatar\": null\n    },\n    \"detail\": {\n      \"lead\": \"...\",\n      \"images\": [],\n      \"content\": [],\n      \"deliverables\": []\n    }\n  }\n}"
+						},
+						{
+							"name": "Not found",
+							"status": "404",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"message\": \"Project not found\"\n}"
+						}
+					]
+				},
+				{
+					"name": "List Blogs",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mobile/v1/marketing/blogs",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"marketing",
+								"blogs"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": [\n    {\n      \"id\": \"brand-strategy-101\",\n      \"slug\": \"brand-strategy-101\",\n      \"date\": \"2025-11-01\",\n      \"published_at\": \"2025-11-01T10:00:00Z\",\n      \"title\": \"Brand Strategy 101\",\n      \"badge\": \"Guide\",\n      \"image\": \"https://example.com/blog.jpg\",\n      \"author\": {\n        \"name\": \"Alex\",\n        \"title\": \"Strategist\",\n        \"avatar\": null\n      },\n      \"lead\": \"Start here.\",\n      \"content\": \"<p>...</p>\"\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Show Blog by Slug",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mobile/v1/marketing/blogs/brand-strategy-101",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"marketing",
+								"blogs",
+								"brand-strategy-101"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"id\": \"brand-strategy-101\",\n    \"slug\": \"brand-strategy-101\",\n    \"date\": \"2025-11-01\",\n    \"published_at\": \"2025-11-01T10:00:00Z\",\n    \"title\": \"Brand Strategy 101\",\n    \"badge\": \"Guide\",\n    \"image\": \"https://example.com/blog.jpg\",\n    \"author\": {\n      \"name\": \"Alex\",\n      \"title\": \"Strategist\",\n      \"avatar\": null\n    },\n    \"lead\": \"Start here.\",\n    \"content\": \"<p>...</p>\"\n  }\n}"
+						},
+						{
+							"name": "Not found",
+							"status": "404",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"message\": \"Blog post not found\"\n}"
+						}
+					]
+				},
+				{
+					"name": "List FAQs",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mobile/v1/marketing/faqs",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"marketing",
+								"faqs"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": [\n    {\n      \"id\": 1,\n      \"question\": \"What is DeepMark?\",\n      \"answer\": \"...\",\n      \"sort_order\": 0\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "List Pricing",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mobile/v1/marketing/pricing",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"marketing",
+								"pricing"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": [\n    {\n      \"id\": 1,\n      \"slug\": \"pro\",\n      \"name\": \"Pro\",\n      \"price_display\": \"19.99\",\n      \"currency_symbol\": \"$\",\n      \"description\": \"For teams\",\n      \"features\": [\n        \"Unlimited generations\"\n      ],\n      \"badge\": \"Popular\",\n      \"is_recommended\": true,\n      \"cta_label\": \"Subscribe\",\n      \"cta_url\": \"/subscribe\",\n      \"sort_order\": 1\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Contact Submit",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mobile/v1/marketing/contact",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"marketing",
+								"contact"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Jane Doe\",\n  \"email\": \"jane@example.com\",\n  \"brand\": \"Acme\",\n  \"description\": \"Need a full brand identity\",\n  \"budget\": \"5k-10k\",\n  \"timeline\": \"1-2 months\"\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"message\": \"Thank you. We will get back to you soon.\",\n  \"submission\": {\n    \"id\": 1,\n    \"name\": \"Jane Doe\",\n    \"email\": \"jane@example.com\",\n    \"brand\": \"Acme\",\n    \"is_read\": false\n  }\n}"
 						}
 					]
 				}
@@ -151,50 +998,76 @@
 					"request": {
 						"method": "GET",
 						"header": [
-							{ "key": "Authorization", "value": "Bearer {{token}}" }
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
 						],
 						"url": {
-							"raw": "{{base_url}}/mobile/v1/questions",
-							"host": ["{{base_url}}"],
-							"path": ["mobile","v1","questions"]
-						}
+							"raw": "{{base_url}}/api/mobile/v1/questions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"questions"
+							]
+						},
+						"description": "Public — no auth required."
 					},
 					"response": [
 						{
 							"name": "Success",
 							"status": "OK",
 							"code": 200,
-							"body": "{\n  \"status\": \"OK\",\n  \"data\": [\n    {\n      \"id\": 1,\n      \"question_en\": \"What’s your brand’s main point‑of‑view or core belief?\",\n      \"question_ar\": \"ما هو الموقف أو الاعتقاد الأساسي لعلامتك؟\",\n      \"question_type\": \"text\",\n      \"answers\": null,\n      \"description_en\": \"Strong brands stand for something – what’s your big \\\"why\\\"?\",\n      \"description_ar\": \"العلامات القوية تؤمن بشيء ما – ما هو سبب وجودك؟\",\n      \"video_url\": null,\n      \"video_path\": null,\n      \"image_url\": null,\n      \"example_answer\": \"We believe great design should be accessible, human, and useful.\",\n      \"resources\": [\n        { \"title\": \"Why it matters\", \"text\": \"Customers connect with personalities, not services.\" },\n        { \"title\": \"Elements of a brand personality\", \"text\": \"Sincerity, Excitement, Competence, Sophistication, Ruggedness\" }\n      ]\n    }\n  ]\n}"
-						},
-						{
-							"name": "Unauthorized",
-							"status": "FAILED",
-							"code": 401,
-							"body": "{\n  \"status\": \"FAILED\",\n  \"message\": \"Unauthenticated.\"\n}"
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": [\n    {\n      \"id\": 1,\n      \"question_en\": \"What's your brand's main point-of-view or core belief?\",\n      \"question_ar\": \"ما هو الموقف أو الاعتقاد الأساسي لعلامتك؟\",\n      \"question_type\": \"text\",\n      \"answers\": null,\n      \"description_en\": \"Strong brands stand for something.\",\n      \"description_ar\": \"العلامات القوية تؤمن بشيء ما.\",\n      \"video_url\": null,\n      \"video_path\": null,\n      \"image_url\": null,\n      \"example_answer\": \"We believe great design should be accessible.\",\n      \"why_matters\": null,\n      \"resources\": [\n        {\n          \"url\": \"https://example.com\",\n          \"text\": \"Why it matters\"\n        }\n      ]\n    }\n  ]\n}"
 						}
 					]
 				}
 			]
 		},
 		{
-			"name": "Brand",
+			"name": "Brand Names",
 			"item": [
 				{
 					"name": "Generate Brand Names",
 					"request": {
 						"method": "POST",
 						"header": [
-							{ "key": "Authorization", "value": "Bearer {{token}}" },
-							{ "key": "Content-Type", "value": "application/json" }
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
 						],
 						"url": {
-							"raw": "{{base_url}}/mobile/v1/brand-names",
-							"host": ["{{base_url}}"],
-							"path": ["mobile","v1","brand-names"]
+							"raw": "{{base_url}}/api/mobile/v1/brand-names",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"brand-names"
+							]
 						},
+						"description": "Public (optional auth). Guest chats can pass device_token.",
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"language\": \"en\",\n  \"count\": 12,\n  \"tlds\": [\"com\",\"io\",\"ai\"],\n  \"answers\": [\n    { \"question_id\": 1, \"value\": \"We believe great design should be accessible\" },\n    { \"question_id\": 2, \"value\": \"Ambitious founders\" }\n  ]\n}"
+							"raw": "{\n  \"language\": \"en\",\n  \"count\": 12,\n  \"tlds\": [\n    \"com\",\n    \"io\",\n    \"ai\"\n  ],\n  \"device_token\": \"optional-guest-device-token\",\n  \"answers\": [\n    {\n      \"question_id\": 1,\n      \"value\": \"We believe great design should be accessible\"\n    },\n    {\n      \"question_id\": 2,\n      \"value\": \"Ambitious founders\"\n    }\n  ]\n}"
 						}
 					},
 					"response": [
@@ -202,7 +1075,27 @@
 							"name": "Success",
 							"status": "OK",
 							"code": 200,
-							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"items\": [\n      {\n        \"id\": 1,\n        \"name\": \"Zephyra\",\n        \"archetype\": \"The Hero\",\n        \"domains\": {\n          \"primary\": { \"tld\": \".com\", \"available\": true, \"domain\": \"zephyra.com\" },\n          \"list\": [\n            { \"domain\": \"zephyra.com\", \"available\": true },\n            { \"domain\": \"zephyra.io\", \"available\": false },\n            { \"domain\": \"zephyra.ai\", \"available\": true }\n          ],\n          \"more_count\": 2\n        },\n        \"liked\": false\n      }\n    ]\n  }\n}"
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"id\": 1,\n    \"project_id\": 1,\n    \"chat_id\": 1,\n    \"response_message\": \"I generated brand name suggestions for you.\",\n    \"items\": [\n      {\n        \"suggestion_index\": 1,\n        \"id\": 10,\n        \"project_id\": 1,\n        \"name\": \"Zephyra\",\n        \"archetype\": \"The Hero\",\n        \"domains\": {\n          \"primary\": {\n            \"tld\": \".com\",\n            \"available\": true,\n            \"domain\": \"zephyra.com\"\n          },\n          \"list\": [\n            {\n              \"domain\": \"zephyra.com\",\n              \"available\": true\n            },\n            {\n              \"domain\": \"zephyra.io\",\n              \"available\": false\n            },\n            {\n              \"domain\": \"zephyra.ai\",\n              \"available\": true\n            }\n          ],\n          \"more_count\": 2\n        },\n        \"liked\": false\n      }\n    ],\n    \"payload\": {\n      \"response_message\": \"I generated brand name suggestions for you.\",\n      \"items\": [\n        {\n          \"suggestion_index\": 1,\n          \"id\": 10,\n          \"project_id\": 1,\n          \"name\": \"Zephyra\",\n          \"archetype\": \"The Hero\",\n          \"domains\": {\n            \"primary\": {\n              \"tld\": \".com\",\n              \"available\": true,\n              \"domain\": \"zephyra.com\"\n            },\n            \"list\": [\n              {\n                \"domain\": \"zephyra.com\",\n                \"available\": true\n              },\n              {\n                \"domain\": \"zephyra.io\",\n                \"available\": false\n              },\n              {\n                \"domain\": \"zephyra.ai\",\n                \"available\": true\n              }\n            ],\n            \"more_count\": 2\n          },\n          \"liked\": false\n        }\n      ]\n    }\n  }\n}"
+						},
+						{
+							"name": "Failed",
+							"status": "500",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"FAILED\",\n  \"message\": \"Failed to generate brand names.\",\n  \"error\": \"...\"\n}"
 						}
 					]
 				},
@@ -211,17 +1104,35 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{ "key": "Authorization", "value": "Bearer {{token}}" },
-							{ "key": "Content-Type", "value": "application/json" }
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
 						],
 						"url": {
-							"raw": "{{base_url}}/mobile/v1/brand-names/edit",
-							"host": ["{{base_url}}"],
-							"path": ["mobile","v1","brand-names","edit"]
+							"raw": "{{base_url}}/api/mobile/v1/brand-names/edit",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"brand-names",
+								"edit"
+							]
 						},
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"chat_id\": 1,\n  \"comment\": \"Make names shorter, more energetic, avoid hard consonants\",\n  \"tlds\": [\"com\",\"io\",\"ai\"]\n}"
+							"raw": "{\n  \"chat_id\": 1,\n  \"comment\": \"Make names shorter, more energetic\",\n  \"tlds\": [\n    \"com\",\n    \"io\",\n    \"ai\"\n  ]\n}"
 						}
 					},
 					"response": [
@@ -229,205 +1140,245 @@
 							"name": "Success",
 							"status": "OK",
 							"code": 200,
-							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"items\": [\n      { \"id\": 1, \"name\": \"Vanguard\", \"archetype\": \"The Hero\", \"domains\": { \"primary\": { \"tld\": \".com\", \"available\": false, \"domain\": \"vanguard.com\" }, \"list\": [], \"more_count\": 0 }, \"liked\": false }\n    ]\n  }\n}"
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"id\": 2,\n    \"project_id\": 1,\n    \"chat_id\": 1,\n    \"items\": [\n      {\n        \"suggestion_index\": 1,\n        \"id\": 10,\n        \"project_id\": 1,\n        \"name\": \"Vanguard\",\n        \"archetype\": \"The Hero\",\n        \"domains\": {\n          \"primary\": {\n            \"tld\": \".com\",\n            \"available\": true,\n            \"domain\": \"zephyra.com\"\n          },\n          \"list\": [\n            {\n              \"domain\": \"zephyra.com\",\n              \"available\": true\n            },\n            {\n              \"domain\": \"zephyra.io\",\n              \"available\": false\n            },\n            {\n              \"domain\": \"zephyra.ai\",\n              \"available\": true\n            }\n          ],\n          \"more_count\": 2\n        },\n        \"liked\": false\n      }\n    ]\n  }\n}"
+						},
+						{
+							"name": "Not found",
+							"status": "404",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"FAILED\",\n  \"message\": \"Chat not found\"\n}"
 						}
 					]
 				},
 				{
-					"name": "List Favorite Names",
+					"name": "List Favorites",
 					"request": {
 						"method": "GET",
 						"header": [
-							{ "key": "Authorization", "value": "Bearer {{token}}" }
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
 						],
 						"url": {
-							"raw": "{{base_url}}/mobile/v1/brand-names/favorites",
-							"host": ["{{base_url}}"],
-							"path": ["mobile","v1","brand-names","favorites"]
+							"raw": "{{base_url}}/api/mobile/v1/brand-names/favorites?brand_chat_id=1&name=&archetype=",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"brand-names",
+								"favorites"
+							],
+							"query": [
+								{
+									"key": "brand_chat_id",
+									"value": "1"
+								},
+								{
+									"key": "name",
+									"value": ""
+								},
+								{
+									"key": "archetype",
+									"value": ""
+								}
+							]
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"items\": [\n      {\n        \"id\": 1,\n        \"brand_chat_id\": 1,\n        \"brand_name_suggestion_id\": 10,\n        \"created_at\": \"2025-11-30T10:00:00Z\",\n        \"suggestion\": {\n          \"suggestion_index\": 1,\n          \"id\": 10,\n          \"project_id\": 1,\n          \"name\": \"Zephyra\",\n          \"archetype\": \"The Hero\",\n          \"domains\": {\n            \"primary\": {\n              \"tld\": \".com\",\n              \"available\": true,\n              \"domain\": \"zephyra.com\"\n            },\n            \"list\": [\n              {\n                \"domain\": \"zephyra.com\",\n                \"available\": true\n              },\n              {\n                \"domain\": \"zephyra.io\",\n                \"available\": false\n              },\n              {\n                \"domain\": \"zephyra.ai\",\n                \"available\": true\n              }\n            ],\n            \"more_count\": 2\n          },\n          \"liked\": false\n        }\n      }\n    ]\n  }\n}"
+						}
+					]
 				},
 				{
-					"name": "Save Favorite Name",
+					"name": "Save Favorite",
 					"request": {
 						"method": "POST",
 						"header": [
-							{ "key": "Authorization", "value": "Bearer {{token}}" },
-							{ "key": "Content-Type", "value": "application/json" }
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
 						],
 						"url": {
-							"raw": "{{base_url}}/mobile/v1/brand-names/favorites",
-							"host": ["{{base_url}}"],
-							"path": ["mobile","v1","brand-names","favorites"]
+							"raw": "{{base_url}}/api/mobile/v1/brand-names/favorites",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"brand-names",
+								"favorites"
+							]
 						},
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"Zephyra\",\n  \"archetype\": \"The Hero\",\n  \"domains\": {\n    \"primary\": { \"tld\": \".com\", \"available\": true, \"domain\": \"zephyra.com\" },\n    \"list\": [\n      { \"domain\": \"zephyra.com\", \"available\": true },\n      { \"domain\": \"zephyra.io\", \"available\": false },\n      { \"domain\": \"zephyra.ai\", \"available\": true }\n    ],\n    \"more_count\": 2\n  },\n  \"brand_chat_id\": 1\n}"
+							"raw": "{\n  \"project_id\": 1,\n  \"suggestion_id\": 10\n}"
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"id\": 1\n  }\n}"
+						},
+						{
+							"name": "Not found",
+							"status": "404",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"message\": \"Project not found\"\n}"
+						}
+					]
 				},
 				{
-					"name": "Remove Favorite Name",
+					"name": "Remove Favorite",
 					"request": {
 						"method": "DELETE",
 						"header": [
-							{ "key": "Authorization", "value": "Bearer {{token}}" }
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
 						],
 						"url": {
-							"raw": "{{base_url}}/mobile/v1/brand-names/favorites/1",
-							"host": ["{{base_url}}"],
-							"path": ["mobile","v1","brand-names","favorites","1"]
+							"raw": "{{base_url}}/api/mobile/v1/brand-names/favorites/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"brand-names",
+								"favorites",
+								"1"
+							]
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"message\": \"Removed from favorites\"\n}"
+						},
+						{
+							"name": "Not found",
+							"status": "404",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"message\": \"Favorite not found\"\n}"
+						}
+					]
 				},
 				{
 					"name": "Share Brand Names",
 					"request": {
 						"method": "POST",
 						"header": [
-							{ "key": "Authorization", "value": "Bearer {{token}}" },
-							{ "key": "Content-Type", "value": "application/json" }
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
 						],
 						"url": {
-							"raw": "{{base_url}}/mobile/v1/brand-names/share",
-							"host": ["{{base_url}}"],
-							"path": ["mobile","v1","brand-names","share"]
+							"raw": "{{base_url}}/api/mobile/v1/brand-names/share",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"brand-names",
+								"share"
+							]
 						},
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"emails\": [\"friend@example.com\"],\n  \"subject\": \"Check these name ideas\",\n  \"message\": \"What do you think?\",\n  \"brand_chat_id\": 1\n}"
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Invite Friends",
-					"request": {
-						"method": "POST",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{token}}" },
-							{ "key": "Content-Type", "value": "application/json" }
-						],
-						"url": {
-							"raw": "{{base_url}}/mobile/v1/invites",
-							"host": ["{{base_url}}"],
-							"path": ["mobile","v1","invites"]
-						},
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"emails\": [\"friend1@example.com\",\"friend2@example.com\"],\n  \"message\": \"Join me on Deepmarks\"\n}"
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "List Invitations",
-					"request": {
-						"method": "GET",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{token}}" }
-						],
-						"url": {
-							"raw": "{{base_url}}/mobile/v1/invites",
-							"host": ["{{base_url}}"],
-							"path": ["mobile","v1","invites"]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Generate Brand Text",
-					"request": {
-						"method": "POST",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{token}}" },
-							{ "key": "Content-Type", "value": "application/json" }
-						],
-						"url": {
-							"raw": "{{base_url}}/mobile/v1/brand-text",
-							"host": ["{{base_url}}"],
-							"path": ["mobile","v1","brand-text"]
-						},
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"language\": \"both\",\n  \"answers\": [\n    { \"question_id\": 1, \"value\": \"Apartment\" },\n    { \"question_id\": 2, \"value\": [\"Pool\",\"Gym\"] }\n  ]\n}"
-						}
-					},
-					"response": [
-						{
-							"name": "Success (JSON structured)",
-							"status": "OK",
-							"code": 200,
-							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"brand_text\": {\n      \"en\": { \"taglines\": [\"Live smart\"], \"mission\": \"...\", \"description\": \"...\" },\n      \"ar\": { \"taglines\": [\"...\"], \"mission\": \"...\", \"description\": \"...\" }\n    },\n    \"colors\": [ { \"name\": {\"en\": \"Primary\", \"ar\": \"الأساسي\"}, \"hex\": \"#112233\", \"usage\": {\"en\": \"Buttons\", \"ar\": \"الأزرار\"} } ],\n    \"design_details\": { \"en\": { \"typography\": [ {\"family\": \"Inter\", \"weights\": [\"400\",\"700\"], \"usage\": \"Headings\" } ], \"imagery\": \"...\", \"layout\": \"...\" }, \"ar\": { \"typography\": [ {\"family\": \"Cairo\", \"weights\": [\"400\",\"700\"], \"usage\": \"العناوين\" } ], \"imagery\": \"...\", \"layout\": \"...\" } }\n  }\n}"
-						},
-						{
-							"name": "Fallback (raw)",
-							"status": "OK",
-							"code": 200,
-							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"brand_text\": null,\n    \"colors\": [],\n    \"design_details\": [],\n    \"raw\": \"Unstructured response...\"\n  }\n}"
-						},
-						{
-							"name": "Unauthorized",
-							"status": "FAILED",
-							"code": 401,
-							"body": "{ \"status\": \"FAILED\", \"message\": \"Unauthenticated.\" }"
-						}
-					]
-				},
-				{
-					"name": "Brand History",
-					"request": {
-						"method": "GET",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{token}}" }
-						],
-						"url": {
-							"raw": "{{base_url}}/mobile/v1/brand-text/history",
-							"host": ["{{base_url}}"],
-							"path": ["mobile","v1","brand-text","history"]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Edit Brand Text",
-					"request": {
-						"method": "POST",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{token}}" },
-							{ "key": "Content-Type", "value": "application/json" }
-						],
-						"url": {
-							"raw": "{{base_url}}/mobile/v1/brand-text/edit",
-							"host": ["{{base_url}}"],
-							"path": ["mobile","v1","brand-text","edit"]
-						},
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"chat_id\": 1,\n  \"comment\": \"Make taglines shorter and more premium\",\n  \"language\": \"en\"\n}"
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Check Domains",
-					"request": {
-						"method": "POST",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{token}}" },
-							{ "key": "Content-Type", "value": "application/json" }
-						],
-						"url": {
-							"raw": "{{base_url}}/mobile/v1/brand-text/domains",
-							"host": ["{{base_url}}"],
-							"path": ["mobile","v1","brand-text","domains"]
-						},
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"DeepMark\",\n  \"tlds\": [\"com\",\"io\",\"ai\"]\n}"
+							"raw": "{\n  \"emails\": [\n    \"friend@example.com\"\n  ],\n  \"subject\": \"Check these name ideas\",\n  \"message\": \"What do you think?\",\n  \"brand_chat_id\": 1,\n  \"names\": [\n    {\n      \"name\": \"Zephyra\",\n      \"archetype\": \"The Hero\"\n    }\n  ]\n}"
 						}
 					},
 					"response": [
@@ -435,22 +1386,270 @@
 							"name": "Success",
 							"status": "OK",
 							"code": 200,
-							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"results\": [\n      { \"domain\": \"deepmark.com\", \"available\": true },\n      { \"domain\": \"deepmark.io\", \"available\": false }\n    ]\n  }\n}"
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"message\": \"Shared successfully\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Brand Text",
+			"item": [
+				{
+					"name": "Generate Brand Text",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mobile/v1/brand-text",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"brand-text"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"language\": \"both\",\n  \"answers\": [\n    {\n      \"question_id\": 1,\n      \"value\": \"Apartment\"\n    },\n    {\n      \"question_id\": 2,\n      \"value\": [\n        \"Pool\",\n        \"Gym\"\n      ]\n    }\n  ]\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"brand_text\": {\n      \"en\": {\n        \"taglines\": [\n          \"Live smart\"\n        ],\n        \"mission\": \"...\",\n        \"description\": \"...\"\n      },\n      \"ar\": {\n        \"taglines\": [\n          \"...\"\n        ],\n        \"mission\": \"...\",\n        \"description\": \"...\"\n      }\n    },\n    \"colors\": [\n      {\n        \"name\": {\n          \"en\": \"Primary\",\n          \"ar\": \"الأساسي\"\n        },\n        \"hex\": \"#112233\",\n        \"usage\": {\n          \"en\": \"Buttons\",\n          \"ar\": \"الأزرار\"\n        }\n      }\n    ],\n    \"design_details\": {\n      \"en\": {\n        \"typography\": [\n          {\n            \"family\": \"Inter\",\n            \"weights\": [\n              \"400\",\n              \"700\"\n            ],\n            \"usage\": \"Headings\"\n          }\n        ],\n        \"imagery\": \"...\",\n        \"layout\": \"...\"\n      },\n      \"ar\": {\n        \"typography\": [\n          {\n            \"family\": \"Cairo\",\n            \"weights\": [\n              \"400\",\n              \"700\"\n            ],\n            \"usage\": \"العناوين\"\n          }\n        ],\n        \"imagery\": \"...\",\n        \"layout\": \"...\"\n      }\n    }\n  }\n}"
+						},
+						{
+							"name": "Fallback (raw)",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"brand_text\": null,\n    \"colors\": [],\n    \"design_details\": [],\n    \"raw\": \"Unstructured...\"\n  }\n}"
 						}
 					]
 				},
 				{
-					"name": "Reserve Domain (Namecheap)",
+					"name": "Brand Text History",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mobile/v1/brand-text/history?q=",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"brand-text",
+								"history"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": [\n    {\n      \"id\": 1,\n      \"language\": \"en\",\n      \"answers\": [],\n      \"response\": {\n        \"brand_text\": {\n          \"en\": {\n            \"taglines\": [\n              \"Live smart\"\n            ],\n            \"mission\": \"...\",\n            \"description\": \"...\"\n          },\n          \"ar\": {\n            \"taglines\": [\n              \"...\"\n            ],\n            \"mission\": \"...\",\n            \"description\": \"...\"\n          }\n        },\n        \"colors\": [\n          {\n            \"name\": {\n              \"en\": \"Primary\",\n              \"ar\": \"الأساسي\"\n            },\n            \"hex\": \"#112233\",\n            \"usage\": {\n              \"en\": \"Buttons\",\n              \"ar\": \"الأزرار\"\n            }\n          }\n        ],\n        \"design_details\": {\n          \"en\": {\n            \"typography\": [\n              {\n                \"family\": \"Inter\",\n                \"weights\": [\n                  \"400\",\n                  \"700\"\n                ],\n                \"usage\": \"Headings\"\n              }\n            ],\n            \"imagery\": \"...\",\n            \"layout\": \"...\"\n          },\n          \"ar\": {\n            \"typography\": [\n              {\n                \"family\": \"Cairo\",\n                \"weights\": [\n                  \"400\",\n                  \"700\"\n                ],\n                \"usage\": \"العناوين\"\n              }\n            ],\n            \"imagery\": \"...\",\n            \"layout\": \"...\"\n          }\n        }\n      },\n      \"raw_response\": null,\n      \"created_at\": \"2025-11-30T10:00:00Z\"\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Edit Brand Text",
 					"request": {
 						"method": "POST",
 						"header": [
-							{ "key": "Authorization", "value": "Bearer {{token}}" },
-							{ "key": "Content-Type", "value": "application/json" }
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
 						],
 						"url": {
-							"raw": "{{base_url}}/mobile/v1/brand-text/reserve-domain",
-							"host": ["{{base_url}}"],
-							"path": ["mobile","v1","brand-text","reserve-domain"]
+							"raw": "{{base_url}}/api/mobile/v1/brand-text/edit",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"brand-text",
+								"edit"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"chat_id\": 1,\n  \"comment\": \"Make taglines shorter and more premium\",\n  \"language\": \"en\"\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"brand_text\": {\n      \"en\": {\n        \"taglines\": [\n          \"Live smart\"\n        ],\n        \"mission\": \"...\",\n        \"description\": \"...\"\n      },\n      \"ar\": {\n        \"taglines\": [\n          \"...\"\n        ],\n        \"mission\": \"...\",\n        \"description\": \"...\"\n      }\n    },\n    \"colors\": [\n      {\n        \"name\": {\n          \"en\": \"Primary\",\n          \"ar\": \"الأساسي\"\n        },\n        \"hex\": \"#112233\",\n        \"usage\": {\n          \"en\": \"Buttons\",\n          \"ar\": \"الأزرار\"\n        }\n      }\n    ],\n    \"design_details\": {\n      \"en\": {\n        \"typography\": [\n          {\n            \"family\": \"Inter\",\n            \"weights\": [\n              \"400\",\n              \"700\"\n            ],\n            \"usage\": \"Headings\"\n          }\n        ],\n        \"imagery\": \"...\",\n        \"layout\": \"...\"\n      },\n      \"ar\": {\n        \"typography\": [\n          {\n            \"family\": \"Cairo\",\n            \"weights\": [\n              \"400\",\n              \"700\"\n            ],\n            \"usage\": \"العناوين\"\n          }\n        ],\n        \"imagery\": \"...\",\n        \"layout\": \"...\"\n      }\n    }\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Check Domains",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mobile/v1/brand-text/domains",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"brand-text",
+								"domains"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"DeepMark\",\n  \"tlds\": [\n    \"com\",\n    \"io\",\n    \"ai\"\n  ]\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"results\": [\n      {\n        \"domain\": \"deepmark.com\",\n        \"available\": true\n      },\n      {\n        \"domain\": \"deepmark.io\",\n        \"available\": false\n      }\n    ]\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Reserve Domain",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mobile/v1/brand-text/reserve-domain",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"brand-text",
+								"reserve-domain"
+							]
 						},
 						"body": {
 							"mode": "raw",
@@ -462,13 +1661,353 @@
 							"name": "Success",
 							"status": "OK",
 							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
 							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"reservation_id\": 10,\n    \"status\": \"success\",\n    \"provider_order_id\": \"1234567\"\n  },\n  \"message\": \"Domain reserved successfully\"\n}"
 						},
 						{
 							"name": "Failed",
-							"status": "FAILED",
+							"status": "400",
 							"code": 400,
-							"body": "{\n  \"status\": \"FAILED\",\n  \"reservation_id\": 11,\n  \"status\": \"failed\",\n  \"error\": \"Order validation failed\"\n}"
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"FAILED\",\n  \"reservation_id\": 11,\n  \"error\": \"Order validation failed\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Invites",
+			"item": [
+				{
+					"name": "List Invitations",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mobile/v1/invites",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"invites"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"items\": [\n      {\n        \"id\": 1,\n        \"email\": \"friend@example.com\",\n        \"status\": \"pending\",\n        \"accepted_at\": null,\n        \"created_at\": \"2025-11-30T10:00:00Z\"\n      }\n    ]\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Send Invites",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mobile/v1/invites",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"invites"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"emails\": [\n    \"friend1@example.com\",\n    \"friend2@example.com\"\n  ],\n  \"message\": \"Join me on DeepMark\"\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"items\": [\n      {\n        \"id\": 1,\n        \"email\": \"friend1@example.com\"\n      }\n    ]\n  },\n  \"message\": \"Invitations sent\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Projects",
+			"item": [
+				{
+					"name": "List Projects",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mobile/v1/projects?topic=brand_names&per_page=10&page=1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"projects"
+							],
+							"query": [
+								{
+									"key": "topic",
+									"value": "brand_names"
+								},
+								{
+									"key": "per_page",
+									"value": "10"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"projects\": [\n    {\n      \"id\": 1,\n      \"project_id\": 1,\n      \"chat_id\": 1,\n      \"parent_id\": null,\n      \"topic\": \"brand_names\",\n      \"language\": \"en\",\n      \"answers\": [],\n      \"archetype\": null,\n      \"items\": [\n        {\n          \"suggestion_index\": 1,\n          \"id\": 10,\n          \"project_id\": 1,\n          \"name\": \"Zephyra\",\n          \"archetype\": \"The Hero\",\n          \"domains\": {\n            \"primary\": {\n              \"tld\": \".com\",\n              \"available\": true,\n              \"domain\": \"zephyra.com\"\n            },\n            \"list\": [\n              {\n                \"domain\": \"zephyra.com\",\n                \"available\": true\n              },\n              {\n                \"domain\": \"zephyra.io\",\n                \"available\": false\n              },\n              {\n                \"domain\": \"zephyra.ai\",\n                \"available\": true\n              }\n            ],\n            \"more_count\": 2\n          },\n          \"liked\": false\n        }\n      ],\n      \"raw_response\": null,\n      \"created_at\": \"2025-11-30T10:00:00Z\",\n      \"device_token\": null\n    }\n  ],\n  \"pagination\": {\n    \"current_page\": 1,\n    \"per_page\": 10,\n    \"total\": 1,\n    \"last_page\": 1\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Show Project",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mobile/v1/projects/1?name=&archetype=",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"projects",
+								"1"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": ""
+								},
+								{
+									"key": "archetype",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"project\": {\n      \"id\": 1,\n      \"project_id\": 1,\n      \"chat_id\": 1,\n      \"topic\": \"brand_names\",\n      \"items\": [\n        {\n          \"suggestion_index\": 1,\n          \"id\": 10,\n          \"project_id\": 1,\n          \"name\": \"Zephyra\",\n          \"archetype\": \"The Hero\",\n          \"domains\": {\n            \"primary\": {\n              \"tld\": \".com\",\n              \"available\": true,\n              \"domain\": \"zephyra.com\"\n            },\n            \"list\": [\n              {\n                \"domain\": \"zephyra.com\",\n                \"available\": true\n              },\n              {\n                \"domain\": \"zephyra.io\",\n                \"available\": false\n              },\n              {\n                \"domain\": \"zephyra.ai\",\n                \"available\": true\n              }\n            ],\n            \"more_count\": 2\n          },\n          \"liked\": false\n        }\n      ]\n    }\n  }\n}"
+						},
+						{
+							"name": "Not found",
+							"status": "404",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"message\": \"Project not found\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Chat History",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mobile/v1/projects/1/chat-history",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"projects",
+								"1",
+								"chat-history"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"project_id\": 1,\n    \"messages\": [\n      {\n        \"id\": 1,\n        \"brand_chat_id\": 1,\n        \"user_id\": 1,\n        \"role\": \"user\",\n        \"message\": \"Make it shorter\",\n        \"payload\": null,\n        \"created_at\": \"2025-11-30T10:00:00Z\"\n      },\n      {\n        \"id\": 2,\n        \"brand_chat_id\": 1,\n        \"user_id\": null,\n        \"role\": \"assistant\",\n        \"message\": \"Here are updated names\",\n        \"payload\": {\n          \"items\": [\n            {\n              \"suggestion_index\": 1,\n              \"id\": 10,\n              \"project_id\": 1,\n              \"name\": \"Zephyra\",\n              \"archetype\": \"The Hero\",\n              \"domains\": {\n                \"primary\": {\n                  \"tld\": \".com\",\n                  \"available\": true,\n                  \"domain\": \"zephyra.com\"\n                },\n                \"list\": [\n                  {\n                    \"domain\": \"zephyra.com\",\n                    \"available\": true\n                  },\n                  {\n                    \"domain\": \"zephyra.io\",\n                    \"available\": false\n                  },\n                  {\n                    \"domain\": \"zephyra.ai\",\n                    \"available\": true\n                  }\n                ],\n                \"more_count\": 2\n              },\n              \"liked\": false\n            }\n          ]\n        },\n        \"created_at\": \"2025-11-30T10:00:05Z\"\n      }\n    ]\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Post Chat Message",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mobile/v1/projects/1/chat-history",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"projects",
+								"1",
+								"chat-history"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"message\": \"Make names shorter\",\n  \"tlds\": [\n    \"com\",\n    \"io\"\n  ]\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"project_id\": 1,\n    \"user_message\": {\n      \"id\": 1,\n      \"role\": \"user\",\n      \"message\": \"Make names shorter\"\n    },\n    \"assistant_message\": {\n      \"id\": 2,\n      \"role\": \"assistant\",\n      \"message\": \"Updated names\"\n    },\n    \"payload\": {\n      \"response_message\": \"Updated names\",\n      \"items\": [\n        {\n          \"suggestion_index\": 1,\n          \"id\": 10,\n          \"project_id\": 1,\n          \"name\": \"Zephyra\",\n          \"archetype\": \"The Hero\",\n          \"domains\": {\n            \"primary\": {\n              \"tld\": \".com\",\n              \"available\": true,\n              \"domain\": \"zephyra.com\"\n            },\n            \"list\": [\n              {\n                \"domain\": \"zephyra.com\",\n                \"available\": true\n              },\n              {\n                \"domain\": \"zephyra.io\",\n                \"available\": false\n              },\n              {\n                \"domain\": \"zephyra.ai\",\n                \"available\": true\n              }\n            ],\n            \"more_count\": 2\n          },\n          \"liked\": false\n        }\n      ]\n    }\n  },\n  \"message\": \"Chat updated successfully\"\n}"
 						}
 					]
 				}
@@ -482,32 +2021,26 @@
 					"request": {
 						"method": "GET",
 						"header": [
-							{ "key": "Authorization", "value": "Bearer {{token}}" }
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
 						],
 						"url": {
-							"raw": "{{base_url}}/mobile/v1/meetings",
-							"host": ["{{base_url}}"],
-							"path": ["mobile","v1","meetings"]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Request Meeting",
-					"request": {
-						"method": "POST",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{token}}" },
-							{ "key": "Content-Type", "value": "application/json" }
-						],
-						"url": {
-							"raw": "{{base_url}}/mobile/v1/meetings",
-							"host": ["{{base_url}}"],
-							"path": ["mobile","v1","meetings"]
-						},
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"brand_id\": 1,\n  \"date\": \"2025-12-05\",\n  \"time\": \"14:30\",\n  \"notes\": \"Discuss visual identity\"\n}"
+							"raw": "{{base_url}}/api/mobile/v1/meetings",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"meetings"
+							]
 						}
 					},
 					"response": [
@@ -515,12 +2048,77 @@
 							"name": "Success",
 							"status": "OK",
 							"code": 200,
-							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"id\": 22,\n    \"brand_chat_id\": 1,\n    \"meeting_at\": \"2025-12-05T14:30:00Z\",\n    \"status\": \"pending\"\n  },\n  \"message\": \"Meeting request created\"\n}"
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": [\n    {\n      \"id\": 22,\n      \"brand_chat_id\": 1,\n      \"meeting_at\": \"2025-12-05T14:30:00Z\",\n      \"notes\": \"Discuss visual identity\",\n      \"status\": \"pending\",\n      \"created_at\": \"2025-11-30T10:00:00Z\"\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Request Meeting",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mobile/v1/meetings",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"meetings"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"brand_id\": 1,\n  \"date\": \"2026-08-05\",\n  \"time\": \"14:30\",\n  \"notes\": \"Discuss visual identity\"\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"id\": 22,\n    \"brand_chat_id\": 1,\n    \"meeting_at\": \"2026-08-05T14:30:00Z\",\n    \"status\": \"pending\"\n  },\n  \"message\": \"Meeting request created\"\n}"
 						},
 						{
-							"name": "Validation error (past time)",
-							"status": "FAILED",
+							"name": "Past time",
+							"status": "422",
 							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
 							"body": "{\n  \"status\": \"FAILED\",\n  \"message\": \"Meeting time must be in the future\"\n}"
 						}
 					]
@@ -535,32 +2133,26 @@
 					"request": {
 						"method": "GET",
 						"header": [
-							{ "key": "Authorization", "value": "Bearer {{token}}" }
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
 						],
 						"url": {
-							"raw": "{{base_url}}/mobile/v1/profile",
-							"host": ["{{base_url}}"],
-							"path": ["mobile","v1","profile"]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update Profile",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{token}}" },
-							{ "key": "Content-Type", "value": "application/json" }
-						],
-						"url": {
-							"raw": "{{base_url}}/mobile/v1/profile",
-							"host": ["{{base_url}}"],
-							"path": ["mobile","v1","profile"]
-						},
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"fname\": \"John\",\n  \"lname\": \"Doe\"\n}"
+							"raw": "{{base_url}}/api/mobile/v1/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"profile"
+							]
 						}
 					},
 					"response": [
@@ -568,7 +2160,131 @@
 							"name": "Success",
 							"status": "OK",
 							"code": 200,
-							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"id\": 1,\n    \"fname\": \"John\",\n    \"lname\": \"Doe\",\n    \"email\": \"john@example.com\",\n    \"phone\": \"201001234567\"\n  },\n  \"message\": \"Profile updated successfully\"\n}"
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"user\": {\n      \"id\": 1,\n      \"fname\": \"John\",\n      \"lname\": \"Doe\",\n      \"email\": \"john@example.com\",\n      \"phone\": \"201001234567\",\n      \"image\": null,\n      \"country\": \"EG\",\n      \"time_zone\": \"Africa/Cairo\",\n      \"bio\": null,\n      \"name\": \"John Doe\"\n    },\n    \"stats\": {\n      \"chats_count\": 3,\n      \"meetings_count\": 1\n    },\n    \"latest\": {\n      \"chats\": [],\n      \"meetings\": []\n    },\n    \"todos\": [\n      {\n        \"key\": \"edit_profile\",\n        \"label\": \"Complete your profile\"\n      }\n    ]\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mobile/v1/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"profile"
+							]
+						},
+						"description": "Also accepts multipart/form-data with image file.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fname\": \"John\",\n  \"lname\": \"Doe\",\n  \"country\": \"EG\",\n  \"time_zone\": \"Africa/Cairo\",\n  \"bio\": \"Founder\"\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"id\": 1,\n    \"fname\": \"John\",\n    \"lname\": \"Doe\",\n    \"email\": \"john@example.com\",\n    \"phone\": \"201001234567\",\n    \"image\": null,\n    \"country\": \"EG\",\n    \"time_zone\": \"Africa/Cairo\",\n    \"bio\": \"Founder\",\n    \"name\": \"John Doe\"\n  },\n  \"message\": \"Profile updated successfully\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Password",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mobile/v1/profile/password",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"profile",
+								"password"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"current_password\": \"OldPass123\",\n  \"password\": \"StrongPass123\",\n  \"password_confirmation\": \"StrongPass123\"\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"message\": \"Password updated successfully\"\n}"
+						},
+						{
+							"name": "Wrong current password",
+							"status": "422",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"FAILED\",\n  \"message\": \"Current password is incorrect\"\n}"
 						}
 					]
 				}
@@ -582,12 +2298,26 @@
 					"request": {
 						"method": "GET",
 						"header": [
-							{ "key": "Authorization", "value": "Bearer {{token}}" }
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
 						],
 						"url": {
-							"raw": "{{base_url}}/mobile/v1/plans",
-							"host": ["{{base_url}}"],
-							"path": ["mobile","v1","plans"]
+							"raw": "{{base_url}}/api/mobile/v1/plans",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"plans"
+							]
 						}
 					},
 					"response": [
@@ -595,7 +2325,14 @@
 							"name": "Success",
 							"status": "OK",
 							"code": 200,
-							"body": "{\n  \"status\": \"OK\",\n  \"data\": [\n    {\n      \"id\": 1,\n      \"name\": \"Basic\",\n      \"description\": \"Starter plan for individuals\",\n      \"price_cents\": 0,\n      \"currency\": \"usd\",\n      \"interval\": \"month\",\n      \"features\": [\n        {\"key\":\"brand_generations\",\"label\":\"Brand generations / month\",\"value\":\"3\"},\n        {\"key\":\"domain_checks\",\"label\":\"Domain checks / month\",\"value\":\"10\"}\n      ]\n    }\n  ]\n}"
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": [\n    {\n      \"id\": 1,\n      \"name\": \"Basic\",\n      \"description\": \"Starter plan for individuals\",\n      \"price_cents\": 0,\n      \"currency\": \"usd\",\n      \"interval\": \"month\",\n      \"features\": [\n        {\n          \"key\": \"brand_generations\",\n          \"label\": \"Brand generations / month\",\n          \"value\": \"3\"\n        }\n      ]\n    }\n  ]\n}"
 						}
 					]
 				},
@@ -604,12 +2341,26 @@
 					"request": {
 						"method": "GET",
 						"header": [
-							{ "key": "Authorization", "value": "Bearer {{token}}" }
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
 						],
 						"url": {
-							"raw": "{{base_url}}/mobile/v1/subscription",
-							"host": ["{{base_url}}"],
-							"path": ["mobile","v1","subscription"]
+							"raw": "{{base_url}}/api/mobile/v1/subscription",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"subscription"
+							]
 						}
 					},
 					"response": [
@@ -617,13 +2368,27 @@
 							"name": "Active",
 							"status": "OK",
 							"code": 200,
-							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"status\": \"active\",\n    \"plan\": {\"id\": 2, \"name\": \"Pro\", \"price_cents\": 1999, \"currency\": \"usd\", \"interval\": \"month\"},\n    \"started_at\": \"2025-11-30T10:00:00Z\",\n    \"ends_at\": null\n  }\n}"
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"status\": \"active\",\n    \"plan\": {\n      \"id\": 2,\n      \"name\": \"Pro\",\n      \"price_cents\": 1999,\n      \"currency\": \"usd\",\n      \"interval\": \"month\"\n    },\n    \"started_at\": \"2025-11-30T10:00:00Z\",\n    \"ends_at\": null\n  }\n}"
 						},
 						{
 							"name": "No subscription",
 							"status": "OK",
 							"code": 200,
-							"body": "{ \"status\": \"OK\", \"data\": null }"
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": null\n}"
 						}
 					]
 				},
@@ -632,13 +2397,30 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{ "key": "Authorization", "value": "Bearer {{token}}" },
-							{ "key": "Content-Type", "value": "application/json" }
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
 						],
 						"url": {
-							"raw": "{{base_url}}/mobile/v1/subscribe",
-							"host": ["{{base_url}}"],
-							"path": ["mobile","v1","subscribe"]
+							"raw": "{{base_url}}/api/mobile/v1/subscribe",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"subscribe"
+							]
 						},
 						"body": {
 							"mode": "raw",
@@ -647,16 +2429,2466 @@
 					},
 					"response": [
 						{
-							"name": "Free plan (instant)",
+							"name": "Free plan",
 							"status": "OK",
 							"code": 200,
-							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\"subscription_id\": 12, \"status\": \"active\"},\n  \"message\": \"Subscribed to free plan\"\n}"
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"subscription_id\": 12,\n    \"status\": \"active\"\n  },\n  \"message\": \"Subscribed to free plan\"\n}"
 						},
 						{
 							"name": "Paid plan (Stripe Checkout)",
 							"status": "OK",
 							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
 							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"checkout_url\": \"https://checkout.stripe.com/c/session_abc\",\n    \"session_id\": \"cs_test_123\"\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Stripe Webhook",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Stripe-Signature",
+								"value": "t=...,v1=..."
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mobile/v1/webhooks/stripe",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"mobile",
+								"v1",
+								"webhooks",
+								"stripe"
+							]
+						},
+						"description": "Public. Requires valid Stripe-Signature header.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"type\": \"checkout.session.completed\",\n  \"data\": {\n    \"object\": {}\n  }\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "OK",
+							"status": "OK",
+							"code": 200,
+							"body": "OK"
+						},
+						{
+							"name": "Invalid signature",
+							"status": "Bad Request",
+							"code": 400,
+							"body": "Invalid signature"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Admin / Auth",
+			"item": [
+				{
+					"name": "Admin Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/user/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"user",
+								"login"
+							]
+						},
+						"description": "On success, copy access_token into {{admin_token}}.",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"password\"\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"access_token\": \"<admin_jwt>\",\n  \"token_type\": \"bearer\",\n  \"user\": {\n    \"id\": 1,\n    \"name\": \"Admin\",\n    \"email\": \"admin@example.com\"\n  }\n}"
+						},
+						{
+							"name": "Wrong credentials",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"FAILED\",\n  \"message\": \"wrong credentials\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Admin Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/user/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"user",
+								"profile"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"user\": {\n    \"id\": 1,\n    \"name\": \"Admin\",\n    \"email\": \"admin@example.com\"\n  }\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Admin / Dashboard",
+			"item": [
+				{
+					"name": "Overview",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/dashboard",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"dashboard"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": {\n    \"users\": {\n      \"total\": 100\n    },\n    \"brands\": {\n      \"total_chats\": 50,\n      \"brand_names_chats\": 30,\n      \"brand_text_chats\": 20,\n      \"favorites_total\": 40\n    },\n    \"questions\": {\n      \"total\": 12\n    },\n    \"meetings\": {\n      \"total\": 8,\n      \"upcoming\": 3,\n      \"done\": 5\n    },\n    \"subscriptions\": {\n      \"by_status\": {\n        \"active\": 10,\n        \"pending\": 2,\n        \"canceled\": 1\n      },\n      \"active_amount_cents\": 19990,\n      \"currency\": \"USD\"\n    }\n  }\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Admin / Users",
+			"item": [
+				{
+					"name": "List Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/users?q=&date_from=&date_to=&date_joined=newest&per_page=15",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"users"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": ""
+								},
+								{
+									"key": "date_from",
+									"value": ""
+								},
+								{
+									"key": "date_to",
+									"value": ""
+								},
+								{
+									"key": "date_joined",
+									"value": "newest"
+								},
+								{
+									"key": "per_page",
+									"value": "15"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"users\": [\n    {\n      \"id\": 1,\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"plan\": \"Paid\",\n      \"joined_at\": \"2025-11-01\"\n    }\n  ],\n  \"pagination\": {\n    \"current_page\": 1,\n    \"per_page\": 15,\n    \"total\": 1,\n    \"last_page\": 1\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Export Users (JSON link)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/users/export",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"users",
+								"export"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"file\": {\n    \"name\": \"users_export_20251130.csv\",\n    \"size_kb\": 12,\n    \"url\": \"https://example.com/storage/exports/users_export.csv\"\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Export Users Download (CSV)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/users/export/download",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"users",
+								"export",
+								"download"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show User",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/users/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"users",
+								"1"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"user\": {\n    \"id\": 1,\n    \"fname\": \"John\",\n    \"lname\": \"Doe\",\n    \"email\": \"john@example.com\"\n  },\n  \"projects\": [],\n  \"plans\": []\n}"
+						}
+					]
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/users/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"users",
+								"1"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fname\": \"John\",\n  \"lname\": \"Doe\",\n  \"email\": \"john@example.com\",\n  \"phone\": \"201001234567\",\n  \"password\": null\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"user\": {\n    \"id\": 1,\n    \"fname\": \"John\",\n    \"lname\": \"Doe\",\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"phone\": \"201001234567\"\n  },\n  \"message\": \"User updated successfully\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/users/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"users",
+								"1"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"message\": \"User deleted successfully\",\n  \"id\": 1\n}"
+						}
+					]
+				},
+				{
+					"name": "User Projects",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/users/1/projects?per_page=15",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"users",
+								"1",
+								"projects"
+							],
+							"query": [
+								{
+									"key": "per_page",
+									"value": "15"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"projects\": [],\n  \"pagination\": {\n    \"current_page\": 1,\n    \"per_page\": 15,\n    \"total\": 0,\n    \"last_page\": 1\n  }\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Admin / Brands",
+			"item": [
+				{
+					"name": "List Brands",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/brands?per_page=15",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"brands"
+							],
+							"query": [
+								{
+									"key": "per_page",
+									"value": "15"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"brands\": [\n    {\n      \"id\": 1,\n      \"topic\": \"brand_names\",\n      \"user_id\": 1\n    }\n  ],\n  \"pagination\": {\n    \"current_page\": 1,\n    \"per_page\": 15,\n    \"total\": 1,\n    \"last_page\": 1\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Show Brand",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/brands/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"brands",
+								"1"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"brand\": {\n    \"id\": 1,\n    \"topic\": \"brand_names\",\n    \"user_id\": 1\n  }\n}"
+						},
+						{
+							"name": "Not found",
+							"status": "404",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"message\": \"Brand not found\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Show Project (alias)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/projects/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"projects",
+								"1"
+							]
+						},
+						"description": "Alias of GET /api/admin/brands/{id}"
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"brand\": {\n    \"id\": 1,\n    \"topic\": \"brand_names\",\n    \"user_id\": 1\n  }\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Admin / Questions",
+			"item": [
+				{
+					"name": "List Questions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/questions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"questions"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"data\": [\n    {\n      \"id\": 1,\n      \"question_en\": \"What is your brand POV?\",\n      \"question_ar\": null,\n      \"question_type\": \"text\"\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Create Question",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/questions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"questions"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"question_en\": \"What is your brand POV?\",\n  \"question_ar\": \"ما هو موقف علامتك؟\",\n  \"question_type\": \"text\",\n  \"description_en\": \"...\",\n  \"description_ar\": \"...\",\n  \"example_answer\": \"...\",\n  \"resources\": [\n    {\n      \"url\": \"https://example.com\",\n      \"text\": \"Guide\"\n    }\n  ]\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Created",
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"question\": {\n    \"id\": 1,\n    \"question_en\": \"What is your brand POV?\"\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Show Question",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/questions/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"questions",
+								"1"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"question\": {\n    \"id\": 1,\n    \"question_en\": \"What is your brand POV?\"\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Question",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/questions/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"questions",
+								"1"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"question_en\": \"Updated question?\",\n  \"question_type\": \"text\"\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"question\": {\n    \"id\": 1,\n    \"question_en\": \"Updated question?\"\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete Question",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/questions/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"questions",
+								"1"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"message\": \"Deleted\",\n  \"id\": 1\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Admin / Meetings",
+			"item": [
+				{
+					"name": "List Meetings",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/meetings?per_page=15&status=pending&user_id=",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"meetings"
+							],
+							"query": [
+								{
+									"key": "per_page",
+									"value": "15"
+								},
+								{
+									"key": "status",
+									"value": "pending"
+								},
+								{
+									"key": "user_id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"meetings\": [\n    {\n      \"id\": 1,\n      \"status\": \"pending\",\n      \"meeting_at\": \"2026-08-05T14:30:00Z\",\n      \"notes\": null,\n      \"user\": {\n        \"id\": 1,\n        \"name\": \"John Doe\",\n        \"email\": \"john@example.com\"\n      },\n      \"brand\": {\n        \"id\": 1,\n        \"topic\": \"brand_names\",\n        \"title\": \"Zephyra\"\n      },\n      \"created_at\": \"2025-11-30T10:00:00Z\"\n    }\n  ],\n  \"pagination\": {\n    \"current_page\": 1,\n    \"per_page\": 15,\n    \"total\": 1,\n    \"last_page\": 1\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Meeting",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/admin/meetings/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"meetings",
+								"1"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"approved\",\n  \"meeting_at\": \"2026-08-05 14:30:00\",\n  \"notes\": \"Confirmed\"\n}"
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n  \"status\": \"OK\",\n  \"meeting\": {\n    \"id\": 1,\n    \"status\": \"approved\"\n  }\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Admin / Marketing",
+			"item": [
+				{
+					"name": "Settings",
+					"item": [
+						{
+							"name": "Get Settings",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/settings",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"settings"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"settings\": {\n    \"brand_name\": \"DeepMark\",\n    \"logo_url\": \"https://example.com/logo.png\",\n    \"login_cta_label\": \"Log in\",\n    \"login_cta_url\": \"/login\",\n    \"start_cta_label\": \"Start branding\",\n    \"start_cta_url\": \"/start\",\n    \"footer_tagline\": \"Brand with confidence\",\n    \"footer_copyright\": \"© DeepMark\",\n    \"newsletter_placeholder\": \"Your email\",\n    \"social_links\": {\n      \"twitter\": \"https://x.com/deepmark\"\n    },\n    \"contact_email\": \"hello@deepmark.com\",\n    \"blogs_title\": \"Insights\"\n  }\n}"
+								}
+							]
+						},
+						{
+							"name": "Update Settings",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/settings",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"settings"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"brand_name_en\": \"DeepMark\",\n  \"brand_name_ar\": \"ديب مارك\",\n  \"logo_url\": \"https://example.com/logo.png\",\n  \"login_cta_label_en\": \"Log in\",\n  \"start_cta_label_en\": \"Start branding\",\n  \"footer_tagline_en\": \"Brand with confidence\",\n  \"contact_email\": \"hello@deepmark.com\",\n  \"social_links\": {\n    \"twitter\": \"https://x.com/deepmark\"\n  }\n}"
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"settings\": {\n    \"brand_name\": \"DeepMark\",\n    \"logo_url\": \"https://example.com/logo.png\",\n    \"login_cta_label\": \"Log in\",\n    \"login_cta_url\": \"/login\",\n    \"start_cta_label\": \"Start branding\",\n    \"start_cta_url\": \"/start\",\n    \"footer_tagline\": \"Brand with confidence\",\n    \"footer_copyright\": \"© DeepMark\",\n    \"newsletter_placeholder\": \"Your email\",\n    \"social_links\": {\n      \"twitter\": \"https://x.com/deepmark\"\n    },\n    \"contact_email\": \"hello@deepmark.com\",\n    \"blogs_title\": \"Insights\"\n  }\n}"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Home Sections",
+					"item": [
+						{
+							"name": "List",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/home-sections",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"home-sections"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"sections\": [\n    {\n      \"id\": 1,\n      \"section_key\": \"hero\",\n      \"is_active\": true\n    }\n  ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Create",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/home-sections",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"home-sections"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"section_key\": \"hero\",\n  \"content_en\": {\n    \"headline\": \"Build your brand\"\n  },\n  \"content_ar\": {\n    \"headline\": \"ابنِ علامتك\"\n  },\n  \"is_active\": true,\n  \"sort_order\": 0\n}"
+								}
+							},
+							"response": [
+								{
+									"name": "Created",
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"section\": {\n    \"id\": 1,\n    \"section_key\": \"hero\"\n  }\n}"
+								}
+							]
+						},
+						{
+							"name": "Show",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/home-sections/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"home-sections",
+										"1"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"section\": {\n    \"id\": 1,\n    \"section_key\": \"hero\"\n  }\n}"
+								}
+							]
+						},
+						{
+							"name": "Update",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/home-sections/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"home-sections",
+										"1"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"content_en\": {\n    \"headline\": \"Updated\"\n  },\n  \"is_active\": true,\n  \"sort_order\": 1\n}"
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"section\": {\n    \"id\": 1,\n    \"section_key\": \"hero\"\n  }\n}"
+								}
+							]
+						},
+						{
+							"name": "Delete",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/home-sections/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"home-sections",
+										"1"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"message\": \"Deleted\",\n  \"id\": 1\n}"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Portfolio Projects",
+					"item": [
+						{
+							"name": "List",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/projects?featured_only=true",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"projects"
+									],
+									"query": [
+										{
+											"key": "featured_only",
+											"value": "true"
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"projects\": [\n    {\n      \"id\": 1,\n      \"slug\": \"zephyra\",\n      \"name\": \"Zephyra\",\n      \"title\": \"Zephyra\",\n      \"year\": 2025,\n      \"description\": \"A calm productivity brand\",\n      \"archetype\": \"The Sage\",\n      \"domains\": {\n        \"primary\": {\n          \"tld\": \".com\",\n          \"available\": true,\n          \"domain\": \"zephyra.com\"\n        },\n        \"list\": [\n          {\n            \"domain\": \"zephyra.com\",\n            \"available\": true\n          },\n          {\n            \"domain\": \"zephyra.io\",\n            \"available\": false\n          },\n          {\n            \"domain\": \"zephyra.ai\",\n            \"available\": true\n          }\n        ],\n        \"more_count\": 2\n      },\n      \"liked\": false,\n      \"image\": \"https://example.com/project.jpg\",\n      \"image_alt\": \"Zephyra\",\n      \"author\": {\n        \"name\": \"Team\",\n        \"position\": \"Studio\",\n        \"avatar\": null\n      },\n      \"detail\": {\n        \"lead\": \"...\",\n        \"images\": [],\n        \"content\": [],\n        \"deliverables\": []\n      }\n    }\n  ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Show",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/projects/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"projects",
+										"1"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"project\": {\n    \"id\": 1,\n    \"slug\": \"zephyra\",\n    \"name\": \"Zephyra\",\n    \"title\": \"Zephyra\",\n    \"year\": 2025,\n    \"description\": \"A calm productivity brand\",\n    \"archetype\": \"The Sage\",\n    \"domains\": {\n      \"primary\": {\n        \"tld\": \".com\",\n        \"available\": true,\n        \"domain\": \"zephyra.com\"\n      },\n      \"list\": [\n        {\n          \"domain\": \"zephyra.com\",\n          \"available\": true\n        },\n        {\n          \"domain\": \"zephyra.io\",\n          \"available\": false\n        },\n        {\n          \"domain\": \"zephyra.ai\",\n          \"available\": true\n        }\n      ],\n      \"more_count\": 2\n    },\n    \"liked\": false,\n    \"image\": \"https://example.com/project.jpg\",\n    \"image_alt\": \"Zephyra\",\n    \"author\": {\n      \"name\": \"Team\",\n      \"position\": \"Studio\",\n      \"avatar\": null\n    },\n    \"detail\": {\n      \"lead\": \"...\",\n      \"images\": [],\n      \"content\": [],\n      \"deliverables\": []\n    }\n  }\n}"
+								}
+							]
+						},
+						{
+							"name": "Update Marketing Fields",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/projects/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"projects",
+										"1"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"is_marketing_featured\": true,\n  \"marketing_image_url\": \"https://example.com/project.jpg\",\n  \"marketing_description_en\": \"A calm productivity brand\",\n  \"marketing_description_ar\": \"...\",\n  \"marketing_lead_en\": \"Lead text\",\n  \"marketing_author_name\": \"Team\",\n  \"marketing_author_position\": \"Studio\"\n}"
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"project\": {\n    \"id\": 1,\n    \"slug\": \"zephyra\",\n    \"name\": \"Zephyra\",\n    \"title\": \"Zephyra\",\n    \"year\": 2025,\n    \"description\": \"A calm productivity brand\",\n    \"archetype\": \"The Sage\",\n    \"domains\": {\n      \"primary\": {\n        \"tld\": \".com\",\n        \"available\": true,\n        \"domain\": \"zephyra.com\"\n      },\n      \"list\": [\n        {\n          \"domain\": \"zephyra.com\",\n          \"available\": true\n        },\n        {\n          \"domain\": \"zephyra.io\",\n          \"available\": false\n        },\n        {\n          \"domain\": \"zephyra.ai\",\n          \"available\": true\n        }\n      ],\n      \"more_count\": 2\n    },\n    \"liked\": false,\n    \"image\": \"https://example.com/project.jpg\",\n    \"image_alt\": \"Zephyra\",\n    \"author\": {\n      \"name\": \"Team\",\n      \"position\": \"Studio\",\n      \"avatar\": null\n    },\n    \"detail\": {\n      \"lead\": \"...\",\n      \"images\": [],\n      \"content\": [],\n      \"deliverables\": []\n    }\n  }\n}"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Blogs",
+					"item": [
+						{
+							"name": "List",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/blogs",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"blogs"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"posts\": [\n    {\n      \"id\": \"brand-strategy-101\",\n      \"slug\": \"brand-strategy-101\",\n      \"date\": \"2025-11-01\",\n      \"published_at\": \"2025-11-01T10:00:00Z\",\n      \"title\": \"Brand Strategy 101\",\n      \"badge\": \"Guide\",\n      \"image\": \"https://example.com/blog.jpg\",\n      \"author\": {\n        \"name\": \"Alex\",\n        \"title\": \"Strategist\",\n        \"avatar\": null\n      },\n      \"lead\": \"Start here.\",\n      \"content\": \"<p>...</p>\"\n    }\n  ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Create",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/blogs",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"blogs"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"slug\": \"brand-strategy-101\",\n  \"title_en\": \"Brand Strategy 101\",\n  \"title_ar\": \"استراتيجية العلامة\",\n  \"badge_en\": \"Guide\",\n  \"lead_en\": \"Start here.\",\n  \"content_en\": \"<p>...</p>\",\n  \"published_at\": \"2025-11-01 10:00:00\",\n  \"image_url\": \"https://example.com/blog.jpg\",\n  \"author_name\": \"Alex\",\n  \"author_title\": \"Strategist\",\n  \"is_active\": true,\n  \"sort_order\": 0\n}"
+								}
+							},
+							"response": [
+								{
+									"name": "Created",
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"post\": {\n    \"id\": \"brand-strategy-101\",\n    \"slug\": \"brand-strategy-101\",\n    \"date\": \"2025-11-01\",\n    \"published_at\": \"2025-11-01T10:00:00Z\",\n    \"title\": \"Brand Strategy 101\",\n    \"badge\": \"Guide\",\n    \"image\": \"https://example.com/blog.jpg\",\n    \"author\": {\n      \"name\": \"Alex\",\n      \"title\": \"Strategist\",\n      \"avatar\": null\n    },\n    \"lead\": \"Start here.\",\n    \"content\": \"<p>...</p>\"\n  }\n}"
+								}
+							]
+						},
+						{
+							"name": "Show",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/blogs/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"blogs",
+										"1"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"post\": {\n    \"id\": \"brand-strategy-101\",\n    \"slug\": \"brand-strategy-101\",\n    \"date\": \"2025-11-01\",\n    \"published_at\": \"2025-11-01T10:00:00Z\",\n    \"title\": \"Brand Strategy 101\",\n    \"badge\": \"Guide\",\n    \"image\": \"https://example.com/blog.jpg\",\n    \"author\": {\n      \"name\": \"Alex\",\n      \"title\": \"Strategist\",\n      \"avatar\": null\n    },\n    \"lead\": \"Start here.\",\n    \"content\": \"<p>...</p>\"\n  }\n}"
+								}
+							]
+						},
+						{
+							"name": "Update",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/blogs/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"blogs",
+										"1"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"title_en\": \"Updated title\",\n  \"is_active\": true\n}"
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"post\": {\n    \"id\": \"brand-strategy-101\",\n    \"slug\": \"brand-strategy-101\",\n    \"date\": \"2025-11-01\",\n    \"published_at\": \"2025-11-01T10:00:00Z\",\n    \"title\": \"Brand Strategy 101\",\n    \"badge\": \"Guide\",\n    \"image\": \"https://example.com/blog.jpg\",\n    \"author\": {\n      \"name\": \"Alex\",\n      \"title\": \"Strategist\",\n      \"avatar\": null\n    },\n    \"lead\": \"Start here.\",\n    \"content\": \"<p>...</p>\"\n  }\n}"
+								}
+							]
+						},
+						{
+							"name": "Delete",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/blogs/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"blogs",
+										"1"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"message\": \"Deleted\",\n  \"id\": 1\n}"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "FAQs",
+					"item": [
+						{
+							"name": "List",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/faqs",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"faqs"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"faqs\": [\n    {\n      \"id\": 1,\n      \"question_en\": \"What is DeepMark?\",\n      \"answer_en\": \"...\"\n    }\n  ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Create",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/faqs",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"faqs"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"question_en\": \"What is DeepMark?\",\n  \"answer_en\": \"A branding platform.\",\n  \"question_ar\": \"ما هو ديب مارك؟\",\n  \"answer_ar\": \"...\",\n  \"is_active\": true,\n  \"sort_order\": 0\n}"
+								}
+							},
+							"response": [
+								{
+									"name": "Created",
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"faq\": {\n    \"id\": 1,\n    \"question_en\": \"What is DeepMark?\"\n  }\n}"
+								}
+							]
+						},
+						{
+							"name": "Show",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/faqs/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"faqs",
+										"1"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"faq\": {\n    \"id\": 1,\n    \"question_en\": \"What is DeepMark?\"\n  }\n}"
+								}
+							]
+						},
+						{
+							"name": "Update",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/faqs/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"faqs",
+										"1"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"question_en\": \"Updated?\",\n  \"answer_en\": \"Updated answer\"\n}"
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"faq\": {\n    \"id\": 1,\n    \"question_en\": \"Updated?\"\n  }\n}"
+								}
+							]
+						},
+						{
+							"name": "Delete",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/faqs/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"faqs",
+										"1"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"message\": \"Deleted\",\n  \"id\": 1\n}"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Pricing",
+					"item": [
+						{
+							"name": "List",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/pricing",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"pricing"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"packages\": [\n    {\n      \"id\": 1,\n      \"slug\": \"pro\",\n      \"name_en\": \"Pro\"\n    }\n  ]\n}"
+								}
+							]
+						},
+						{
+							"name": "Create",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/pricing",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"pricing"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"slug\": \"pro\",\n  \"name_en\": \"Pro\",\n  \"name_ar\": \"برو\",\n  \"price_display\": \"19.99\",\n  \"currency_symbol\": \"$\",\n  \"description_en\": \"For teams\",\n  \"features_en\": [\n    \"Unlimited generations\"\n  ],\n  \"badge_en\": \"Popular\",\n  \"is_recommended\": true,\n  \"cta_label_en\": \"Subscribe\",\n  \"cta_url\": \"/subscribe\",\n  \"is_active\": true,\n  \"sort_order\": 1\n}"
+								}
+							},
+							"response": [
+								{
+									"name": "Created",
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"package\": {\n    \"id\": 1,\n    \"slug\": \"pro\"\n  }\n}"
+								}
+							]
+						},
+						{
+							"name": "Show",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/pricing/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"pricing",
+										"1"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"package\": {\n    \"id\": 1,\n    \"slug\": \"pro\"\n  }\n}"
+								}
+							]
+						},
+						{
+							"name": "Update",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/pricing/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"pricing",
+										"1"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name_en\": \"Pro Plus\",\n  \"is_recommended\": true\n}"
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"package\": {\n    \"id\": 1,\n    \"slug\": \"pro\"\n  }\n}"
+								}
+							]
+						},
+						{
+							"name": "Delete",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/pricing/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"pricing",
+										"1"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"message\": \"Deleted\",\n  \"id\": 1\n}"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Contact Submissions",
+					"item": [
+						{
+							"name": "List",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/contact-submissions?per_page=15",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"contact-submissions"
+									],
+									"query": [
+										{
+											"key": "per_page",
+											"value": "15"
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"submissions\": [\n    {\n      \"id\": 1,\n      \"name\": \"Jane Doe\",\n      \"email\": \"jane@example.com\",\n      \"is_read\": false\n    }\n  ],\n  \"pagination\": {\n    \"current_page\": 1,\n    \"per_page\": 15,\n    \"total\": 1,\n    \"last_page\": 1\n  }\n}"
+								}
+							]
+						},
+						{
+							"name": "Show",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/contact-submissions/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"contact-submissions",
+										"1"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"submission\": {\n    \"id\": 1,\n    \"name\": \"Jane Doe\",\n    \"email\": \"jane@example.com\",\n    \"is_read\": false\n  }\n}"
+								}
+							]
+						},
+						{
+							"name": "Mark Read",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/contact-submissions/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"contact-submissions",
+										"1"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"is_read\": true\n}"
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"submission\": {\n    \"id\": 1,\n    \"is_read\": true\n  }\n}"
+								}
+							]
+						},
+						{
+							"name": "Delete",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/api/admin/marketing/contact-submissions/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"marketing",
+										"contact-submissions",
+										"1"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": "{\n  \"status\": \"OK\",\n  \"message\": \"Deleted\",\n  \"id\": 1\n}"
+								}
+							]
 						}
 					]
 				}
@@ -664,9 +4896,17 @@
 		}
 	],
 	"variable": [
-		{ "key": "base_url", "value": "http://localhost" },
-		{ "key": "token", "value": "" }
+		{
+			"key": "base_url",
+			"value": "http://localhost"
+		},
+		{
+			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "admin_token",
+			"value": ""
+		}
 	]
 }
-
-

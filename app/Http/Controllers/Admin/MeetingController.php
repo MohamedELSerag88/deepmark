@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\JsonDataResource;
 use App\Models\BrandNameSuggestion;
 use App\Models\MeetingRequest;
 use Illuminate\Http\JsonResponse;
@@ -48,8 +49,8 @@ class MeetingController extends Controller
             ];
         });
 
-        return $this->response->statusOk([
-            'meetings' => $items,
+        return $this->statusOk([
+            'meetings' => JsonDataResource::collection($items),
             'pagination' => [
                 'current_page' => $meetings->currentPage(),
                 'per_page' => $meetings->perPage(),
@@ -63,7 +64,7 @@ class MeetingController extends Controller
     {
         $meeting = MeetingRequest::find($id);
         if (!$meeting) {
-            return $this->response->notFound(['message' => 'Meeting not found'], 404);
+            return $this->notFound(['message' => 'Meeting not found'], 404);
         }
         $validated = $request->validate([
             'status' => 'sometimes|required|string|in:pending,approved,cancelled,done',
@@ -72,8 +73,8 @@ class MeetingController extends Controller
         ]);
         $meeting->fill($validated)->save();
 
-        return $this->response->statusOk([
-            'meeting' => $meeting->load(['user','brandChat'])
+        return $this->statusOk([
+            'meeting' => new JsonDataResource($meeting->load(['user', 'brandChat'])),
         ]);
     }
 

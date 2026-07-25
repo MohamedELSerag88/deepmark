@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\JsonDataResource;
+use App\Http\Resources\Mobile\MessageResource;
 use App\Models\User;
 use App\Models\BrandChat;
 use App\Models\Subscription;
@@ -42,17 +44,19 @@ class UserController extends Controller
 
         $users = $query->paginate((int)$request->get('per_page', 10));
 
-        return $this->response->statusOk([
-            'users' => collect($users->items())->map(function ($u) {
-                return [
-                    'id' => $u->id,
-                    'name' => $u->name ?? trim(($u->fname ?? '') . ' ' . ($u->lname ?? '')),
-                    'email' => $u->email,
-                    // Frontend design expects a "plan" value; default to "Paid" until plans exist
-                    'plan' => 'Paid',
-                    'joined_at' => optional($u->created_at)->toDateString(),
-                ];
-            }),
+        $mapped = collect($users->items())->map(function ($u) {
+            return [
+                'id' => $u->id,
+                'name' => $u->name ?? trim(($u->fname ?? '') . ' ' . ($u->lname ?? '')),
+                'email' => $u->email,
+                // Frontend design expects a "plan" value; default to "Paid" until plans exist
+                'plan' => 'Paid',
+                'joined_at' => optional($u->created_at)->toDateString(),
+            ];
+        });
+
+        return $this->statusOk([
+            'users' => JsonDataResource::collection($mapped),
             'pagination' => [
                 'current_page' => $users->currentPage(),
                 'per_page' => $users->perPage(),
@@ -66,7 +70,7 @@ class UserController extends Controller
     {
         $user = User::find($id);
         if (!$user) {
-            return $this->response->notFound(['message' => 'User not found'], 404);
+            return $this->notFound(['message' => 'User not found'], 404);
         }
         // Projects (brand chats)
         $projects = \App\Models\BrandChat::where('user_id', $user->id)
@@ -97,8 +101,8 @@ class UserController extends Controller
             'created_at' => $latestSub->created_at,
         ] : null;
 
-        return $this->response->statusOk([
-            'user' => [
+        return $this->statusOk([
+            'user' => new JsonDataResource([
                 'id' => $user->id,
                 'name' => $user->name,
                 'fname' => $user->fname,
@@ -108,11 +112,10 @@ class UserController extends Controller
                 'bio' => $user->bio,
                 'joined_at' => optional($user->created_at)->toDateString(),
                 'last_login' => optional($user->updated_at)->toDateTimeString(),
-            ],
-            'projects' => $projects,
-            // For compatibility with existing UI labels:
-            'favorites' => $user->favorites,
-            'plans' =>  $latestSubMapped,
+            ]),
+            'projects' => JsonDataResource::collection(collect($projects)),
+            'favorites' => JsonDataResource::collection(collect($user->favorites ?? [])),
+            'plans' => $latestSubMapped ? new JsonDataResource($latestSubMapped) : null,
         ]);
     }
 
@@ -136,12 +139,12 @@ class UserController extends Controller
         Storage::disk('public')->put($path, $csv);
         $url = Storage::disk('public')->url($path);
 
-        return $this->response->statusOk([
-            'file' => [
+        return $this->statusOk([
+            'file' => new JsonDataResource([
                 'name' => $filename,
                 'size_kb' => round(strlen($csv) / 1024),
                 'url' => $url,
-            ],
+            ]),
         ]);
     }
 
@@ -175,7 +178,7 @@ class UserController extends Controller
     {
         $user = User::find($id);
         if (!$user) {
-            return $this->response->notFound(['message' => 'User not found'], 404);
+            return $this->notFound(['message' => 'User not found'], 404);
         }
 
         $validated = $request->validate([
@@ -195,15 +198,15 @@ class UserController extends Controller
         $user->fill($validated);
         $user->save();
 
-        return $this->response->statusOk([
-            'user' => [
+        return $this->statusOk([
+            'user' => new JsonDataResource([
                 'id' => $user->id,
                 'fname' => $user->fname,
                 'lname' => $user->lname,
                 'name' => trim(($user->fname ?? '') . ' ' . ($user->lname ?? '')) ?: ($user->name ?? null),
                 'email' => $user->email,
                 'phone' => $user->phone,
-            ],
+            ]),
             'message' => 'User updated successfully',
         ]);
     }
@@ -212,33 +215,35 @@ class UserController extends Controller
     {
         $user = User::find($id);
         if (!$user) {
-            return $this->response->notFound(['message' => 'User not found'], 404);
+            return $this->notFound(['message' => 'User not found'], 404);
         }
         $user->delete();
-        return $this->response->statusOk([
+        return $this->statusOk(new MessageResource([
             'message' => 'User deleted successfully',
-            'id' => (int)$id,
-        ]);
+            'id' => (int) $id,
+        ]));
     }
 
     public function projects(Request $request, $id): JsonResponse
     {
         $user = User::find($id);
         if (!$user) {
-            return $this->response->notFound(['message' => 'User not found'], 404);
+            return $this->notFound(['message' => 'User not found'], 404);
         }
         $query = BrandChat::where('user_id', $user->id)->orderByDesc('created_at');
         $projects = $query->paginate((int)$request->get('per_page', 10));
 
-        return $this->response->statusOk([
-            'projects' => collect($projects->items())->map(function ($p) {
-                return [
-                    'id' => $p->id,
-                    'name' => $p->topic ?? 'Project',
-                    'status' => 'Pending',
-                    'created_at' => optional($p->created_at)->toDateString(),
-                ];
-            }),
+        $mappedProjects = collect($projects->items())->map(function ($p) {
+            return [
+                'id' => $p->id,
+                'name' => $p->topic ?? 'Project',
+                'status' => 'Pending',
+                'created_at' => optional($p->created_at)->toDateString(),
+            ];
+        });
+
+        return $this->statusOk([
+            'projects' => JsonDataResource::collection($mappedProjects),
             'pagination' => [
                 'current_page' => $projects->currentPage(),
                 'per_page' => $projects->perPage(),
@@ -252,23 +257,26 @@ class UserController extends Controller
     {
         $user = User::find($id);
         if (!$user) {
-            return $this->response->notFound(['message' => 'User not found'], 404);
+            return $this->notFound(['message' => 'User not found'], 404);
         }
         $query = Subscription::with('plan')->where('user_id', $user->id)->orderByDesc('created_at');
-        $subs = $query->paginate((int)$request->get('per_page', 10));
+        $subs = $query->paginate((int) $request->get('per_page', 10));
 
-        return $this->response->statusOk([
-            'plans' => collect($subs->items())->map(function ($s) {
-                $plan = $s->plan;
-                return [
-                    'id' => $s->id,
-                    'plan_name' => $plan?->name ?? 'Plan',
-                    'amount' => $plan ? number_format(($plan->price_cents ?? 0) / 100, 2) : '0.00',
-                    'currency' => $plan->currency ?? 'USD',
-                    'status' => $s->status ?? 'pending',
-                    'started_at' => optional($s->started_at)->toDateString(),
-                ];
-            }),
+        $mappedPlans = collect($subs->items())->map(function ($s) {
+            $plan = $s->plan;
+
+            return [
+                'id' => $s->id,
+                'plan_name' => $plan?->name ?? 'Plan',
+                'amount' => $plan ? number_format(($plan->price_cents ?? 0) / 100, 2) : '0.00',
+                'currency' => $plan->currency ?? 'USD',
+                'status' => $s->status ?? 'pending',
+                'started_at' => optional($s->started_at)->toDateString(),
+            ];
+        });
+
+        return $this->statusOk([
+            'plans' => JsonDataResource::collection($mappedPlans),
             'pagination' => [
                 'current_page' => $subs->currentPage(),
                 'per_page' => $subs->perPage(),

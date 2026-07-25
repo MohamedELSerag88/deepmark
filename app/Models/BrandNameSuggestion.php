@@ -14,6 +14,14 @@ class BrandNameSuggestion extends Model
         'suggestion_index',
         'name',
         'archetype',
+        'name_type',
+        'linguistic_style',
+        'generation_technique',
+        'name_length',
+        'rationale',
+        'description',
+        'brand_keywords',
+        'why_fits',
         'domains',
         'liked',
         'is_marketing_featured',
@@ -36,6 +44,7 @@ class BrandNameSuggestion extends Model
     {
         return [
             'domains' => 'array',
+            'brand_keywords' => 'array',
             'liked' => 'boolean',
             'is_marketing_featured' => 'boolean',
             'marketing_gallery_images' => 'array',

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\JsonDataResource;
 use App\Models\BrandChat;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,8 +18,8 @@ class ProjectController extends Controller
 
         $brands = $query->paginate((int)$request->get('per_page', 10));
 
-        return $this->response->statusOk([
-            'brands' => $brands->items(),
+        return $this->statusOk([
+            'brands' => JsonDataResource::collection(collect($brands->items())),
             'pagination' => [
                 'current_page' => $brands->currentPage(),
                 'per_page' => $brands->perPage(),
@@ -32,10 +33,10 @@ class ProjectController extends Controller
     {
         $brand = BrandChat::find($id);
         if (!$brand) {
-            return $this->response->notFound(['message' => 'Brand not found'], 404);
+            return $this->notFound(['message' => 'Brand not found'], 404);
         }
-        return $this->response->statusOk([
-            'brand' => $brand
+        return $this->statusOk([
+            'brand' => new JsonDataResource($brand),
         ]);
     }
 }

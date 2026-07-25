@@ -13,11 +13,14 @@ class BrandChat extends Model
 		'parent_id',
 		'user_id',
 		'topic',
+		'project_name',
+		'selected_brand_name',
 		'language',
 		'answers',
 		'response',
 		'raw_response',
-        'device_token'
+		'device_token',
+		'branding_email_sent',
 	];
 
 	protected function casts(): array
@@ -25,6 +28,7 @@ class BrandChat extends Model
 		return [
 			'answers' => 'array',
 			'response' => 'array',
+			'branding_email_sent' => 'boolean',
 		];
 	}
 

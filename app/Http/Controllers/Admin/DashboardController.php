@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Admin\DashboardResource;
 use App\Models\BrandChat;
 use App\Models\BrandNameFavorite;
 use App\Models\MeetingRequest;
@@ -51,36 +52,34 @@ class DashboardController extends Controller
         // Favorites
         $favoriteBrandsCount = BrandNameFavorite::count();
 
-        return $this->response->statusOk([
-            'data' => [
-                'users' => [
-                    'total' => $totalUsers,
-                ],
-                'brands' => [
-                    'total_chats' => $totalBrandChats,
-                    'brand_names_chats' => $brandNameChats,
-                    'brand_text_chats' => $brandTextChats,
-                    'favorites_total' => $favoriteBrandsCount,
-                ],
-                'questions' => [
-                    'total' => $totalQuestions,
-                ],
-                'meetings' => [
-                    'total' => $totalMeetings,
-                    'upcoming' => $upcomingMeetings,
-                    'done' => $doneMeetings,
-                ],
-                'subscriptions' => [
-                    'by_status' => [
-                        'active' => (int)($subscriptionsByStatus['active'] ?? 0),
-                        'pending' => (int)($subscriptionsByStatus['pending'] ?? 0),
-                        'canceled' => (int)($subscriptionsByStatus['canceled'] ?? 0),
-                    ],
-                    'active_amount_cents' => (int)$activeAmountCents,
-                    'currency' => 'USD', // from plans; amounts are in price_cents currency
-                ],
+        return $this->okResource(new DashboardResource([
+            'users' => [
+                'total' => $totalUsers,
             ],
-        ]);
+            'brands' => [
+                'total_chats' => $totalBrandChats,
+                'brand_names_chats' => $brandNameChats,
+                'brand_text_chats' => $brandTextChats,
+                'favorites_total' => $favoriteBrandsCount,
+            ],
+            'questions' => [
+                'total' => $totalQuestions,
+            ],
+            'meetings' => [
+                'total' => $totalMeetings,
+                'upcoming' => $upcomingMeetings,
+                'done' => $doneMeetings,
+            ],
+            'subscriptions' => [
+                'by_status' => [
+                    'active' => (int) ($subscriptionsByStatus['active'] ?? 0),
+                    'pending' => (int) ($subscriptionsByStatus['pending'] ?? 0),
+                    'canceled' => (int) ($subscriptionsByStatus['canceled'] ?? 0),
+                ],
+                'active_amount_cents' => (int) $activeAmountCents,
+                'currency' => 'USD',
+            ],
+        ]));
     }
 }
 

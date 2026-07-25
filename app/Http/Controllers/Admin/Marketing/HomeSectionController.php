@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin\Marketing;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\JsonDataResource;
+use App\Http\Resources\Mobile\MessageResource;
 use App\Models\HomeSection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,7 +14,7 @@ class HomeSectionController extends Controller
     public function index(): JsonResponse
     {
         $sections = HomeSection::query()->orderBy('sort_order')->get();
-        return $this->response->statusOk(['sections' => $sections]);
+        return $this->statusOk(['sections' => JsonDataResource::collection($sections)]);
     }
 
     public function store(Request $request): JsonResponse
@@ -26,23 +28,23 @@ class HomeSectionController extends Controller
         ]);
 
         $section = HomeSection::create($validated);
-        return $this->response->statusOk(['section' => $section], 201);
+        return $this->statusOk(['section' => new JsonDataResource($section)], 201);
     }
 
     public function show($id): JsonResponse
     {
         $section = HomeSection::find($id);
         if (!$section) {
-            return $this->response->notFound(['message' => 'Home section not found'], 404);
+            return $this->notFound(['message' => 'Home section not found'], 404);
         }
-        return $this->response->statusOk(['section' => $section]);
+        return $this->statusOk(['section' => new JsonDataResource($section)]);
     }
 
     public function update(Request $request, $id): JsonResponse
     {
         $section = HomeSection::find($id);
         if (!$section) {
-            return $this->response->notFound(['message' => 'Home section not found'], 404);
+            return $this->notFound(['message' => 'Home section not found'], 404);
         }
 
         $validated = $request->validate([
@@ -54,16 +56,16 @@ class HomeSectionController extends Controller
         ]);
 
         $section->update($validated);
-        return $this->response->statusOk(['section' => $section->fresh()]);
+        return $this->statusOk(['section' => new JsonDataResource($section->fresh())]);
     }
 
     public function destroy($id): JsonResponse
     {
         $section = HomeSection::find($id);
         if (!$section) {
-            return $this->response->notFound(['message' => 'Home section not found'], 404);
+            return $this->notFound(['message' => 'Home section not found'], 404);
         }
         $section->delete();
-        return $this->response->statusOk(['message' => 'Deleted', 'id' => (int) $id]);
+        return $this->statusOk(new MessageResource(['message' => 'Deleted', 'id' => (int) $id]));
     }
 }

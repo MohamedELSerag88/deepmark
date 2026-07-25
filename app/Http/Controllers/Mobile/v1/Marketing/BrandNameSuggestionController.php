@@ -17,7 +17,7 @@ class BrandNameSuggestionController extends Controller
             ->limit(24)
             ->get();
 
-        return $this->response->statusOk([
+        return $this->statusOk([
             'data' => BrandNameSuggestionResource::collection($suggestions),
         ]);
     }
@@ -30,10 +30,10 @@ class BrandNameSuggestionController extends Controller
             ->first();
 
         if (!$suggestion) {
-            return $this->response->notFound(['message' => 'Project not found'], 404);
+            return $this->notFound(['message' => 'Project not found'], 404);
         }
 
-        return $this->response->statusOk([
+        return $this->statusOk([
             'data' => new BrandNameSuggestionResource($suggestion),
         ]);
     }

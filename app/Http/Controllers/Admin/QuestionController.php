@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Mobile\MessageResource;
 use App\Http\Resources\Mobile\QuestionResource;
 use App\Models\Question;
 use Illuminate\Http\JsonResponse;
@@ -16,7 +17,7 @@ class QuestionController extends Controller
     public function index(): JsonResponse
     {
         $questions = Question::query()->latest()->get();
-        return $this->response->statusOk([
+        return $this->statusOk([
             'data' => QuestionResource::collection($questions),
         ]);
     }
@@ -30,6 +31,7 @@ class QuestionController extends Controller
             'question_en' => 'required|string|max:1000',
             'question_ar' => 'nullable|string|max:1000',
             'question_type' => 'nullable|string|max:50',
+            'prompt_key' => 'nullable|string|max:100',
             'answers' => 'nullable|array',
             'description_en' => 'nullable|string|max:2000',
             'description_ar' => 'nullable|string|max:2000',
@@ -42,7 +44,7 @@ class QuestionController extends Controller
         ]);
 
         $q = Question::create($validated);
-        return $this->response->statusOk(['question' => $q], 201);
+        return $this->statusOk(['question' => new QuestionResource($q)], 201);
     }
 
     /**
@@ -52,9 +54,9 @@ class QuestionController extends Controller
     {
         $q = Question::find($id);
         if (!$q) {
-            return $this->response->notFound(['message' => 'Question not found'], 404);
+            return $this->notFound(['message' => 'Question not found'], 404);
         }
-        return $this->response->statusOk(['question' => $q]);
+        return $this->statusOk(['question' => new QuestionResource($q)]);
     }
 
     /**
@@ -64,12 +66,13 @@ class QuestionController extends Controller
     {
         $q = Question::find($id);
         if (!$q) {
-            return $this->response->notFound(['message' => 'Question not found'], 404);
+            return $this->notFound(['message' => 'Question not found'], 404);
         }
         $validated = $request->validate([
             'question_en' => 'sometimes|required|string|max:1000',
             'question_ar' => 'nullable|string|max:1000',
             'question_type' => 'nullable|string|max:50',
+            'prompt_key' => 'nullable|string|max:100',
             'answers' => 'nullable|array',
             'description_en' => 'nullable|string|max:2000',
             'description_ar' => 'nullable|string|max:2000',
@@ -81,7 +84,7 @@ class QuestionController extends Controller
             'resources' => 'nullable|array',
         ]);
         $q->fill($validated)->save();
-        return $this->response->statusOk(['question' => $q]);
+        return $this->statusOk(['question' => new QuestionResource($q)]);
     }
 
     /**
@@ -91,9 +94,9 @@ class QuestionController extends Controller
     {
         $q = Question::find($id);
         if (!$q) {
-            return $this->response->notFound(['message' => 'Question not found'], 404);
+            return $this->notFound(['message' => 'Question not found'], 404);
         }
         $q->delete();
-        return $this->response->statusOk(['message' => 'Deleted', 'id' => (int)$id]);
+        return $this->statusOk(new MessageResource(['message' => 'Deleted', 'id' => (int) $id]));
     }
 }

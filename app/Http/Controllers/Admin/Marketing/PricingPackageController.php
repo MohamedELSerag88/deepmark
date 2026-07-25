@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin\Marketing;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\JsonDataResource;
+use App\Http\Resources\Mobile\MessageResource;
 use App\Models\PricingPackage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,44 +14,44 @@ class PricingPackageController extends Controller
     public function index(): JsonResponse
     {
         $packages = PricingPackage::query()->orderBy('sort_order')->get();
-        return $this->response->statusOk(['packages' => $packages]);
+        return $this->statusOk(['packages' => JsonDataResource::collection($packages)]);
     }
 
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate($this->rules());
         $package = PricingPackage::create($validated);
-        return $this->response->statusOk(['package' => $package], 201);
+        return $this->statusOk(['package' => new JsonDataResource($package)], 201);
     }
 
     public function show($id): JsonResponse
     {
         $package = PricingPackage::find($id);
         if (!$package) {
-            return $this->response->notFound(['message' => 'Pricing package not found'], 404);
+            return $this->notFound(['message' => 'Pricing package not found'], 404);
         }
-        return $this->response->statusOk(['package' => $package]);
+        return $this->statusOk(['package' => new JsonDataResource($package)]);
     }
 
     public function update(Request $request, $id): JsonResponse
     {
         $package = PricingPackage::find($id);
         if (!$package) {
-            return $this->response->notFound(['message' => 'Pricing package not found'], 404);
+            return $this->notFound(['message' => 'Pricing package not found'], 404);
         }
         $validated = $request->validate($this->rules($id));
         $package->update($validated);
-        return $this->response->statusOk(['package' => $package->fresh()]);
+        return $this->statusOk(['package' => new JsonDataResource($package->fresh())]);
     }
 
     public function destroy($id): JsonResponse
     {
         $package = PricingPackage::find($id);
         if (!$package) {
-            return $this->response->notFound(['message' => 'Pricing package not found'], 404);
+            return $this->notFound(['message' => 'Pricing package not found'], 404);
         }
         $package->delete();
-        return $this->response->statusOk(['message' => 'Deleted', 'id' => (int) $id]);
+        return $this->statusOk(new MessageResource(['message' => 'Deleted', 'id' => (int) $id]));
     }
 
     protected function rules($id = null): array

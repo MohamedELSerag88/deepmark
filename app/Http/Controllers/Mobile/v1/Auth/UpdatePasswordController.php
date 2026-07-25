@@ -14,7 +14,7 @@ class UpdatePasswordController extends Controller {
         $user = auth('client')->user();
         $user->password = \Hash::make($password);
         $user->save();
-        return $this->response->statusOk(trans('messages.password_updated_successfully'));
+        return $this->statusOk(trans('messages.password_updated_successfully'));
 
     }
 

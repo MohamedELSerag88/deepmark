@@ -4,88 +4,55 @@ namespace App\Http\Controllers\Mobile\v1\Home;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Mobile\SubscribeRequest;
-use App\Models\Plan;
-use App\Models\Subscription;
-use App\Services\Billing\StripeService;
+use App\Http\Resources\Mobile\MessageResource;
+use App\Http\Resources\Mobile\SubscriptionStatusResource;
+use App\Services\Billing\SubscriptionService;
 use Illuminate\Http\JsonResponse;
 
-class SubscriptionController extends Controller {
-
+class SubscriptionController extends Controller
+{
+	public function __construct(
+		private readonly SubscriptionService $subscriptionService,
+	) {
+		parent::__construct();
+	}
 
 	public function status(): JsonResponse
 	{
-		$sub = Subscription::with('plan')
-			->where('user_id', auth('api')->id())
-			->latest('id')
-			->first();
-		return $this->response->statusOk([
-			'data' => $sub ? [
-				'status' => $sub->status,
-				'plan' => [
-					'id' => $sub->plan->id,
-					'name' => $sub->plan->name,
-					'price_cents' => $sub->plan->price_cents,
-					'currency' => $sub->plan->currency,
-					'interval' => $sub->plan->interval,
-				],
-				'started_at' => $sub->started_at,
-				'ends_at' => $sub->ends_at,
-			] : null
+		$status = $this->subscriptionService->status(auth('api')->id());
+
+		return $this->statusOk([
+			'data' => $status === null ? null : new SubscriptionStatusResource($status),
 		]);
 	}
 
-	public function subscribe(SubscribeRequest $request, StripeService $stripe): JsonResponse
+	public function subscribe(SubscribeRequest $request): JsonResponse
 	{
 		try {
-			return $this->doSubscribe($request, $stripe);
+			$result = $this->subscriptionService->subscribe(
+				(int) $request->input('plan_id'),
+				auth()->user()
+			);
+
+			if (($result['type'] ?? null) === 'free') {
+				return $this->statusOk([
+					'data' => new MessageResource([
+						'subscription_id' => $result['subscription_id'],
+						'status' => $result['status'],
+					]),
+					'message' => $result['message'] ?? 'Subscribed to free plan',
+				]);
+			}
+
+			return $this->okResource(new MessageResource([
+				'checkout_url' => $result['checkout_url'],
+				'session_id' => $result['session_id'],
+			]));
 		} catch (\Throwable $e) {
-			return $this->response->statusFail(
+			return $this->statusFail(
 				['message' => 'Subscription failed.', 'error' => $e->getMessage()],
 				500
 			);
 		}
 	}
-
-	private function doSubscribe(SubscribeRequest $request, StripeService $stripe): JsonResponse
-	{
-		$plan = Plan::find($request->input('plan_id'));
-		if ($plan->price_cents === 0) {
-			$sub = Subscription::create([
-				'user_id' => auth('api')->id(),
-				'plan_id' => $plan->id,
-				'status' => 'active',
-				'started_at' => now(),
-			]);
-			return $this->response->statusOk([
-				'data' => [
-					'subscription_id' => $sub->id,
-					'status' => $sub->status,
-				],
-				'message' => 'Subscribed to free plan'
-			]);
-		}
-
-		$session = $stripe->createCheckoutSession(
-			$plan->price_cents,
-			$plan->name,
-			$plan->stripe_price_id,
-			auth()->user()->email
-		);
-
-		Subscription::create([
-			'user_id' => auth('api')->id(),
-			'plan_id' => $plan->id,
-			'status' => 'pending',
-			'stripe_session_id' => $session['id'],
-		]);
-
-		return $this->response->statusOk([
-			'data' => [
-				'checkout_url' => $session['url'],
-				'session_id' => $session['id'],
-			]
-		]);
-	}
 }
-
-

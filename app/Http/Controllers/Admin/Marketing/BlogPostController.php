@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin\Marketing;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\JsonDataResource;
+use App\Http\Resources\Mobile\MessageResource;
 use App\Models\BlogPost;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,44 +14,44 @@ class BlogPostController extends Controller
     public function index(): JsonResponse
     {
         $posts = BlogPost::query()->orderByDesc('published_at')->orderBy('sort_order')->get();
-        return $this->response->statusOk(['posts' => $posts]);
+        return $this->statusOk(['posts' => JsonDataResource::collection($posts)]);
     }
 
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate($this->rules());
         $post = BlogPost::create($validated);
-        return $this->response->statusOk(['post' => $post], 201);
+        return $this->statusOk(['post' => new JsonDataResource($post)], 201);
     }
 
     public function show($id): JsonResponse
     {
         $post = BlogPost::find($id);
         if (!$post) {
-            return $this->response->notFound(['message' => 'Blog post not found'], 404);
+            return $this->notFound(['message' => 'Blog post not found'], 404);
         }
-        return $this->response->statusOk(['post' => $post]);
+        return $this->statusOk(['post' => new JsonDataResource($post)]);
     }
 
     public function update(Request $request, $id): JsonResponse
     {
         $post = BlogPost::find($id);
         if (!$post) {
-            return $this->response->notFound(['message' => 'Blog post not found'], 404);
+            return $this->notFound(['message' => 'Blog post not found'], 404);
         }
         $validated = $request->validate($this->rules($id));
         $post->update($validated);
-        return $this->response->statusOk(['post' => $post->fresh()]);
+        return $this->statusOk(['post' => new JsonDataResource($post->fresh())]);
     }
 
     public function destroy($id): JsonResponse
     {
         $post = BlogPost::find($id);
         if (!$post) {
-            return $this->response->notFound(['message' => 'Blog post not found'], 404);
+            return $this->notFound(['message' => 'Blog post not found'], 404);
         }
         $post->delete();
-        return $this->response->statusOk(['message' => 'Deleted', 'id' => (int) $id]);
+        return $this->statusOk(new MessageResource(['message' => 'Deleted', 'id' => (int) $id]));
     }
 
     protected function rules($id = null): array
